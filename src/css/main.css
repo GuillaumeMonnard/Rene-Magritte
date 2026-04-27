@@ -12,3 +12,7 @@ img,
 video {
   display: block;
 }
+
+body {
+  height: 300vh;
+}

@@ -1,108 +1,95 @@
-// ============================================================
-// Imports
-// ============================================================
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
 import urlCouloir from "../assets/3d-model/COULOIR.glb";
 
-// Enregistrement du plugin ScrollTrigger de GSAP
 gsap.registerPlugin(ScrollTrigger);
 
-// ============================================================
-// Création du renderer (moteur de rendu WebGL)
-// ============================================================
+// Renderer
 const w = window.innerWidth;
 const h = window.innerHeight;
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(w, h);
-renderer.setPixelRatio(window.devicePixelRatio); // meilleure qualité sur écrans HD
+renderer.setPixelRatio(window.devicePixelRatio);
 
-// Ajout du canvas au body et positionnement en fond de page
 document.body.appendChild(renderer.domElement);
-renderer.domElement.style.position = "fixed"; // ✅ corrigé (était une URL cassée)
-renderer.domElement.style.top = "0"; // ✅ corrigé
-renderer.domElement.style.left = "0"; // ✅ corrigé
+renderer.domElement.style.position = "fixed";
+renderer.domElement.style.top = "0";
+renderer.domElement.style.left = "0";
 
-// ============================================================
-// Création de la scène
-// ============================================================
+// Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x888888); // fond gris pour voir le modèle
+scene.background = new THREE.Color(0x222222);
 
-// ============================================================
-// Création de la caméra
-// ============================================================
+// Lights
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+directionalLight.position.set(5, 10, 5);
+scene.add(directionalLight);
+
+// Camera (FPS style, pas de rotation)
 const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-camera.position.z = 5;
+camera.position.set(0, 0.2, 0);
+scene.add(camera);
 
-// ============================================================
-// Contrôles orbitaux (permet de tourner autour du modèle avec la souris)
-// ============================================================
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; // mouvement plus fluide
+// Load model
+const gltfLoader = new GLTFLoader();
 
-// ============================================================
-// Chargement du modèle 3D au format GLB (exporté depuis Blender)
-// ============================================================
-const gltfLoader = new GLTFLoader(); // ✅ déclaration avant utilisation
-gltfLoader.load(
-  urlCouloir,
+gltfLoader.load(urlCouloir, (gltf) => {
+  scene.add(gltf.scene);
 
-  // Callback succès : le modèle est chargé
-  (gltf) => {
-    scene.add(gltf.scene);
-    console.log("✅ Modèle chargé avec succès :", gltf.scene);
-  },
+  console.log("✅ Modèle chargé");
 
-  // Callback progression : affiche le pourcentage de chargement
-  (progress) => {
-    const pourcentage = ((progress.loaded / progress.total) * 100).toFixed(1);
-    console.log(`⏳ Chargement : ${pourcentage}%`);
-  },
+  // centrer le modèle
+  const box = new THREE.Box3().setFromObject(gltf.scene);
+  const center = box.getCenter(new THREE.Vector3());
+  gltf.scene.position.sub(center);
+});
 
-  // Callback erreur : affiche l'erreur si le fichier ne se charge pas
-  (error) => {
-    console.error("❌ Erreur lors du chargement du modèle GLB :", error);
-  },
-);
-
-// ============================================================
-// Éclairage de la scène
-// ============================================================
-
-// Lumière ambiante (éclaire uniformément toute la scène)
-const lumierAmbiance = new THREE.AmbientLight(0xffffff, 1);
-scene.add(lumierAmbiance);
-
-// Lumière directionnelle (simule une source lumineuse comme le soleil)
-const lumierDirectionnelle = new THREE.DirectionalLight(0xffffff, 1);
-lumierDirectionnelle.position.set(5, 10, 5);
-scene.add(lumierDirectionnelle);
-
-// ============================================================
-// Gestion du redimensionnement de la fenêtre
-// ============================================================
+// Resize
 window.addEventListener("resize", () => {
   const newW = window.innerWidth;
   const newH = window.innerHeight;
 
   camera.aspect = newW / newH;
-  camera.updateProjectionMatrix(); // mise à jour de la perspective
+  camera.updateProjectionMatrix();
 
   renderer.setSize(newW, newH);
 });
 
-// ============================================================
-// Boucle d'animation principale
-// ============================================================
+// 👉 FORCER DU SCROLL
+document.body.style.height = "300vh";
+
+// 👉 DIRECTION FIXE (tout droit dans le couloir)
+const direction = new THREE.Vector3(0, 0, -1);
+
+// 👉 PROGRESSION SCROLL → MOUVEMENT CAMERA
+const camProgress = { value: 0 };
+
+gsap.to(camProgress, {
+  value: 30, // distance dans le couloir
+  ease: "none",
+  scrollTrigger: {
+    trigger: document.body,
+    start: "top top",
+    end: "bottom bottom",
+    scrub: 1.2,
+  },
+  onUpdate: () => {
+    camera.position.x = direction.x * camProgress.value;
+    camera.position.y = 0.2; // hauteur fixe
+    camera.position.z = direction.z * camProgress.value;
+  },
+});
+
+// Render loop
 function animate() {
   requestAnimationFrame(animate);
-  controls.update(); // nécessaire si enableDamping est activé
+
   renderer.render(scene, camera);
 }
 
