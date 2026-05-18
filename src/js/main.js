@@ -3,8 +3,6 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
-import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
-import { HDRCubeTextureLoader } from "three/examples/jsm/loaders/HDRCubeTextureLoader.js";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import urlCouloir from "../assets/3d-model/COULOIR.glb";
@@ -36,13 +34,6 @@ scene.background = new THREE.Color(0x222222);
 // Très bas — l'éclairage vient de la lightmap
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
 scene.add(ambientLight);
-
-const rgbeLoader = new RGBELoader();
-rgbeLoader.load("../assets/industrial_sunset_puresky_4k", (texture) => {
-  texture.mapping = THREE.EquirectangularReflectionMapping;
-  scene.environment = texture;
-  scene.environmentIntensity = 0.3;
-});
 
 // ─── Camera ──────────────────────────────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
