@@ -6,6 +6,9 @@
   "transformers": {
     "*.glb": [
       "@parcel/transformer-raw"
+    ],
+    "*.hdr": [
+      "@parcel/transformer-raw"
     ]
   }
 }

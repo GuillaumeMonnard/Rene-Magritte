@@ -3,8 +3,11 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+import urlHdri from "../assets/hdri/hdri.hdr";
 import urlCouloir from "../assets/3d-model/COULOIR.glb";
 import urlLightmap from "../assets/lightmaps/lightmap.png";
 
@@ -35,6 +38,13 @@ scene.background = new THREE.Color(0x222222);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
 scene.add(ambientLight);
 
+const rgbeLoader = new RGBELoader();
+rgbeLoader.load(urlHdri, (texture) => {
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  scene.environment = texture;
+  scene.environmentIntensity = 0.02;
+});
+
 // ─── Camera ──────────────────────────────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
 camera.position.set(0, 0.2, 0);
@@ -44,7 +54,7 @@ scene.add(camera);
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 
-// 👍 Bloom léger par-dessus la lightmap — juste pour les tubes émissifs
+// ─── Bloom ───────────────────────────────────────────────────────────────────
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(w, h),
   0.6, // strength  — léger, la lightmap fait le vrai travail
