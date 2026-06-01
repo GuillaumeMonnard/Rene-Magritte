@@ -36,6 +36,21 @@ scene.background = new THREE.Color(0x000000);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.15);
 scene.add(ambientLight);
 
+//spotlight
+const spotLight = new THREE.SpotLight(0xffffff, 10); // couleur, intensité
+spotLight.position.set(0, 0, -30); // à ajuster
+spotLight.target.position.set(0, 0, -30); // pointe vers là
+spotLight.angle = Math.PI / 6; // ouverture du cône (30°)
+spotLight.penumbra = 0.3; // douceur des bords
+spotLight.decay = 2;
+spotLight.distance = 30;
+
+scene.add(spotLight);
+scene.add(spotLight.target); // important, sinon la target ne fonctionne pas
+//target pour aider
+const spotHelper = new THREE.SpotLightHelper(spotLight);
+scene.add(spotHelper);
+
 // ─── HDRI ────────────────────────────────────────────────────────────────────
 const rgbeLoader = new RGBELoader();
 rgbeLoader.load(urlHdri, (texture) => {
@@ -45,6 +60,7 @@ rgbeLoader.load(urlHdri, (texture) => {
   scene.background = texture;
   scene.backgroundIntensity = 0.25;
 });
+
 // ─── Camera ──────────────────────────────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
 camera.position.set(0, 0.7, 0);
@@ -75,6 +91,16 @@ gltfLoader.load(urlScene, (gltf) => {
   sceneRoot.position.sub(center);
 
   scene.add(sceneRoot);
+
+  // Log des positions après recentrage
+  sceneRoot.traverse((child) => {
+    if (child.isMesh) {
+      const worldPos = new THREE.Vector3();
+      child.getWorldPosition(worldPos);
+      console.log(child.name, worldPos);
+    }
+  });
+
   console.log("Scène chargée");
 });
 
@@ -84,7 +110,6 @@ document.body.style.height = "600vh";
 camera.position.set(0, 0.7, 0);
 camera.rotation.x = 0;
 
-// Phase 1 : entrée dans le couloir
 gsap.to(camera.position, {
   z: -35,
   ease: "power2.inOut",
@@ -96,7 +121,6 @@ gsap.to(camera.position, {
   },
 });
 
-// Phase 2 : rotation en plongée
 gsap.to(camera.rotation, {
   x: -Math.PI / 9,
   ease: "power2.inOut",
@@ -108,7 +132,6 @@ gsap.to(camera.rotation, {
   },
 });
 
-// Phase 2 : descente
 gsap.to(camera.position, {
   y: -1,
   ease: "power2.inOut",
