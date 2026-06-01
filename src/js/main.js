@@ -36,29 +36,28 @@ scene.background = new THREE.Color(0x000000);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.15);
 scene.add(ambientLight);
 
-//spotlight
-const spotLight = new THREE.SpotLight(0xffffff, 10); // couleur, intensité
+const spotLight = new THREE.SpotLight(0xffffff, 50); // couleur, intensité
 spotLight.position.set(0, 0, -30); // à ajuster
-spotLight.target.position.set(0, 0, -30); // pointe vers là
+spotLight.target.position.set(-1, -2, -38); // pointe vers là
 spotLight.angle = Math.PI / 6; // ouverture du cône (30°)
 spotLight.penumbra = 0.3; // douceur des bords
 spotLight.decay = 2;
 spotLight.distance = 30;
 
 scene.add(spotLight);
-scene.add(spotLight.target); // important, sinon la target ne fonctionne pas
-//target pour aider
-const spotHelper = new THREE.SpotLightHelper(spotLight);
-scene.add(spotHelper);
+scene.add(spotLight.target);
+//TARGET pour trouver où est la light
+// const spotHelper = new THREE.SpotLightHelper(spotLight);
+// scene.add(spotHelper);
 
 // ─── HDRI ────────────────────────────────────────────────────────────────────
 const rgbeLoader = new RGBELoader();
 rgbeLoader.load(urlHdri, (texture) => {
   texture.mapping = THREE.EquirectangularReflectionMapping;
   scene.environment = texture;
-  scene.environmentIntensity = 0.2;
+  scene.environmentIntensity = 0.1;
   scene.background = texture;
-  scene.backgroundIntensity = 0.25;
+  scene.backgroundIntensity = 0.1;
 });
 
 // ─── Camera ──────────────────────────────────────────────────────────────────
@@ -75,10 +74,9 @@ composer.addPass(bloomPass);
 
 // ─── Chargement de la scène ───────────────────────────────────────────────────
 const gltfLoader = new GLTFLoader();
-
+let sceneRoot = null;
 gltfLoader.load(urlScene, (gltf) => {
-  const sceneRoot = gltf.scene;
-
+  sceneRoot = gltf.scene;
   sceneRoot.traverse((child) => {
     if (!child.isMesh) return;
     if (child.material?.emissive?.getHex() !== 0x000000) {
@@ -103,6 +101,10 @@ gltfLoader.load(urlScene, (gltf) => {
 
   console.log("Scène chargée");
 });
+
+//Raycaster
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
 // ─── Scroll ───────────────────────────────────────────────────────────────────
 document.body.style.height = "600vh";
@@ -133,7 +135,7 @@ gsap.to(camera.rotation, {
 });
 
 gsap.to(camera.position, {
-  y: -1,
+  y: -0.5,
   ease: "power2.inOut",
   scrollTrigger: {
     trigger: document.body,
@@ -141,6 +143,42 @@ gsap.to(camera.position, {
     end: "bottom bottom",
     scrub: 1.2,
   },
+});
+
+//Tracking des objets
+
+let hoveredObject = null;
+
+window.addEventListener("mousemove", (e) => {
+  if (!sceneRoot) return;
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(sceneRoot.children, true);
+
+  if (intersects.length > 0) {
+    const object = intersects[0].object;
+
+    //Si on survole un nouvel objet
+    if (hoveredObject !== object) {
+      //reset de l'ancien
+      if (hoveredObject) {
+        hoveredObject.material.emissive.set(0x000000);
+      }
+      //active le nouveau
+      hoveredObject = object;
+      hoveredObject.material.emissive.set(0x444444);
+      document.body.style.cursor = "pointer";
+    }
+  } else {
+    //Plus rien survolé
+    if (hoveredObject) {
+      hoveredObject.material.emissive.set(0x000000);
+      hoveredObject = null;
+    }
+    document.body.style.cursor = "default";
+  }
 });
 
 // ─── Resize ──────────────────────────────────────────────────────────────────
