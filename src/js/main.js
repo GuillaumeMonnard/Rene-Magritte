@@ -63,7 +63,7 @@ rgbeLoader.load(urlHdri, (texture) => {
 });
 
 // ─── Camera ──────────────────────────────────────────────────────────────────
-const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 1000);
 camera.position.set(0, 0.7, 0);
 scene.add(camera);
 
@@ -122,7 +122,7 @@ camera.position.set(0, 0.7, 0);
 camera.rotation.x = 0;
 
 gsap.to(camera.position, {
-  z: -35,
+  z: -34,
   ease: "power2.inOut",
   scrollTrigger: {
     trigger: document.body,
@@ -144,7 +144,7 @@ gsap.to(camera.rotation, {
 });
 
 gsap.to(camera.position, {
-  y: -0.5,
+  y: -0,
   ease: "power2.inOut",
   scrollTrigger: {
     trigger: document.body,
