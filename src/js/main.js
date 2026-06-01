@@ -41,9 +41,10 @@ const rgbeLoader = new RGBELoader();
 rgbeLoader.load(urlHdri, (texture) => {
   texture.mapping = THREE.EquirectangularReflectionMapping;
   scene.environment = texture;
-  scene.environmentIntensity = 0.5;
+  scene.environmentIntensity = 0.2;
+  scene.background = texture;
+  scene.backgroundIntensity = 0.2;
 });
-
 // ─── Camera ──────────────────────────────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
 camera.position.set(0, 5, 50);
@@ -84,7 +85,7 @@ const direction = new THREE.Vector3(0, 0, -1);
 
 const camProgress = { value: 0 };
 gsap.to(camProgress, {
-  value: 50,
+  value: 35,
   ease: "none",
   scrollTrigger: {
     trigger: document.body,
