@@ -43,7 +43,7 @@ rgbeLoader.load(urlHdri, (texture) => {
   scene.environment = texture;
   scene.environmentIntensity = 0.2;
   scene.background = texture;
-  scene.backgroundIntensity = 0.2;
+  scene.backgroundIntensity = 0.25;
 });
 // ─── Camera ──────────────────────────────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
@@ -117,7 +117,7 @@ gsap.to(camRotation, {
   },
 });
 
-const camPosition = { y: 0 };
+const camPosition = { y: 0.7 };
 gsap.to(camPosition, {
   y: -1,
   ease: "power2.inOut",
