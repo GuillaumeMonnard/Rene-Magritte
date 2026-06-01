@@ -33,7 +33,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
 
 // ─── Lights ──────────────────────────────────────────────────────────────────
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.15);
 scene.add(ambientLight);
 
 // ─── HDRI ────────────────────────────────────────────────────────────────────
@@ -47,7 +47,7 @@ rgbeLoader.load(urlHdri, (texture) => {
 });
 // ─── Camera ──────────────────────────────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-camera.position.set(0, 5, 50);
+camera.position.set(0, 0.7, 0);
 scene.add(camera);
 
 // ─── Post-processing (Bloom) ─────────────────────────────────────────────────
@@ -75,10 +75,12 @@ gltfLoader.load(urlScene, (gltf) => {
   sceneRoot.position.sub(center);
 
   scene.add(sceneRoot);
-  console.log("✅ Scène chargée");
+  console.log("Scène chargée");
 });
 
 // ─── Scroll ───────────────────────────────────────────────────────────────────
+//Phase 1 - entrée dans le couloir
+
 document.body.style.height = "600vh";
 
 const direction = new THREE.Vector3(0, 0, -1);
@@ -95,7 +97,38 @@ gsap.to(camProgress, {
   },
   onUpdate: () => {
     camera.position.z = direction.z * camProgress.value;
-    camera.position.y = 0.2;
+    camera.position.y = 0.7;
+  },
+});
+
+// Phase 2 - rotation en plongée et descente
+const camRotation = { x: 0 };
+gsap.to(camRotation, {
+  x: -Math.PI / 9, //rotation
+  ease: "power2.inOut",
+  scrollTrigger: {
+    trigger: document.body,
+    start: "70% top",
+    end: "bottom bottom",
+    scrub: 1.2,
+  },
+  onUpdate: () => {
+    camera.rotation.x = camRotation.x;
+  },
+});
+
+const camPosition = { y: 0 };
+gsap.to(camPosition, {
+  y: -1,
+  ease: "power2.inOut",
+  scrollTrigger: {
+    trigger: document.body,
+    start: "70% top",
+    end: "bottom bottom",
+    scrub: 1.2,
+  },
+  onUpdate: () => {
+    camera.position.y = camPosition.y;
   },
 });
 
