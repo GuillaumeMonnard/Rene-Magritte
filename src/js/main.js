@@ -79,56 +79,44 @@ gltfLoader.load(urlScene, (gltf) => {
 });
 
 // ─── Scroll ───────────────────────────────────────────────────────────────────
-//Phase 1 - entrée dans le couloir
-
 document.body.style.height = "600vh";
 
-const direction = new THREE.Vector3(0, 0, -1);
+camera.position.set(0, 0.7, 0);
+camera.rotation.x = 0;
 
-const camProgress = { value: 0 };
-gsap.to(camProgress, {
-  value: 35,
-  ease: "none",
-  scrollTrigger: {
-    trigger: document.body,
-    start: "top top",
-    end: "bottom bottom",
-    scrub: 1.2,
-  },
-  onUpdate: () => {
-    camera.position.z = direction.z * camProgress.value;
-    camera.position.y = 0.7;
-  },
-});
-
-// Phase 2 - rotation en plongée et descente
-const camRotation = { x: 0 };
-gsap.to(camRotation, {
-  x: -Math.PI / 9, //rotation
+// Phase 1 : entrée dans le couloir
+gsap.to(camera.position, {
+  z: -35,
   ease: "power2.inOut",
   scrollTrigger: {
     trigger: document.body,
-    start: "70% top",
-    end: "bottom bottom",
+    start: "top top",
+    end: "80% bottom",
     scrub: 1.2,
-  },
-  onUpdate: () => {
-    camera.rotation.x = camRotation.x;
   },
 });
 
-const camPosition = { y: 0.7 };
-gsap.to(camPosition, {
+// Phase 2 : rotation en plongée
+gsap.to(camera.rotation, {
+  x: -Math.PI / 9,
+  ease: "power2.inOut",
+  scrollTrigger: {
+    trigger: document.body,
+    start: "10% top",
+    end: "bottom bottom",
+    scrub: 1.2,
+  },
+});
+
+// Phase 2 : descente
+gsap.to(camera.position, {
   y: -1,
   ease: "power2.inOut",
   scrollTrigger: {
     trigger: document.body,
-    start: "70% top",
+    start: "10% top",
     end: "bottom bottom",
     scrub: 1.2,
-  },
-  onUpdate: () => {
-    camera.position.y = camPosition.y;
   },
 });
 
