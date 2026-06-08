@@ -122,6 +122,38 @@ gltfLoader.load(urlScene, (gltf) => {
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
+//─── Données des objets ───────────────────────────────────────────────────────
+const objectData = {
+  OISEAU: {
+    title: "L'oiseau",
+    text: "Description de l'oiseau de Magritte.",
+  },
+  CAGE: {
+    title: "La cage",
+    text: "Une cage. On pense à la prison, à la contrainte. Mais chez Magritte, elle n'est pas toujours fermée.",
+  },
+  PORTE: {
+    title: "La porte",
+    text: "Description de la porte.",
+  },
+  PIPE: {
+    title: "La pipe",
+    text: "Ceci n'est pas une pipe.",
+  },
+  POMME: {
+    title: "La pomme",
+    text: "Description de la pomme.",
+  },
+  TABLE: {
+    title: "La table",
+    text: "Description de la table.",
+  },
+  CHEVALET: {
+    title: "Le chevalet",
+    text: "Description du chevalet.",
+  },
+};
+
 // ─── Scroll ───────────────────────────────────────────────────────────────────
 document.body.style.height = "600vh";
 
@@ -197,11 +229,15 @@ window.addEventListener("mousemove", (e) => {
 });
 
 // ─── Clic sur un objet ────────────────────────────────────────────────────────
+const infoPanel = document.getElementById("info-panel");
+const infoTitle = document.getElementById("info-title");
+const infoText = document.getElementById("info-text");
+const backBtn = document.getElementById("back-button");
+
 window.addEventListener("click", () => {
   if (!hoveredObject || isZoomed) return;
 
   isZoomed = true;
-  backButton.style.display = "block";
 
   const box = new THREE.Box3().setFromObject(hoveredObject);
   const targetPos = new THREE.Vector3();
@@ -213,17 +249,9 @@ window.addEventListener("click", () => {
     targetPos.z + 2,
   );
 
-  // Sauvegarde la rotation actuelle avant de kill
-  const currentRotX = camera.rotation.x;
-  const currentRotY = camera.rotation.y;
-  const currentRotZ = camera.rotation.z;
-
   ScrollTrigger.getAll().forEach((st) => st.disable(false));
   gsap.killTweensOf(camera.position);
   gsap.killTweensOf(camera.rotation);
-
-  // Remet la rotation à ce qu'elle était avant le kill
-  camera.rotation.set(currentRotX, currentRotY, currentRotZ);
 
   gsap.to(camera.position, {
     x: zoomPos.x,
@@ -231,31 +259,37 @@ window.addEventListener("click", () => {
     z: zoomPos.z,
     duration: 1.2,
     ease: "power2.inOut",
-    onUpdate: () => {
-      camera.lookAt(targetPos);
-    },
+    onUpdate: () => camera.lookAt(targetPos),
     onComplete: () => {
       lookAtTarget = targetPos.clone();
+
+      // Affiche le panneau
+      const data = objectData[hoveredObject.name];
+      if (data) {
+        infoTitle.innerText = data.title;
+        infoText.innerText = data.text;
+      } else {
+        infoTitle.innerText = hoveredObject.name;
+        infoText.innerText = "";
+      }
+      infoPanel.classList.add("visible");
     },
   });
 });
 
-// ─── Bouton retour ────────────────────────────────────────────────────────────
-backButton.addEventListener("click", (e) => {
-  e.stopPropagation(); // évite de déclencher le clic sur la scène
+backBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
 
   isZoomed = false;
   lookAtTarget = null;
-  backButton.style.display = "none";
   outlinePass.selectedObjects = [];
+  infoPanel.classList.remove("visible");
 
-  // Sauvegarde la position scroll actuelle
   const scrollProgress =
     window.scrollY / (document.body.scrollHeight - window.innerHeight);
 
   ScrollTrigger.getAll().forEach((st) => st.enable());
 
-  // Remet la caméra à la position correspondant au scroll actuel
   gsap.to(camera.position, {
     x: 0,
     y: 0,
