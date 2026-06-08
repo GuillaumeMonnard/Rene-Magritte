@@ -4,17 +4,29 @@
     <meta charset="utf-8" />
     <title>Rene-Magritte</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Montserrat:wght@400&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="css/main.css" />
   </head>
   <body>
+    <header class="header">
+      <img class="ligne" src="./assets/img/line-header.png" alt="ligne" />
+      <a href=""
+        ><img class="hat-icon" src="./assets/img/hat.png" alt="chapeau"
+      /></a>
+      <img class="ligne" src="./assets/img/line-header2.png" alt="ligne" />
+    </header>
     <div id="info-panel">
-      <div class="container">
-        <div class="object-view"></div>
-        <div class="texts">
-          <h1 id="info-title"></h1>
-          <p id="info-text"></p>
-          <button id="back-button">← Retour</button>
-        </div>
+      <button id="back-button">
+        <img src="./assets/img/cross.png" alt="fermer" />
+      </button>
+      <div class="texts">
+        <h1 id="info-title"></h1>
+        <p id="info-text"></p>
       </div>
     </div>
     <script src="./js/main.js" type="module"></script>
