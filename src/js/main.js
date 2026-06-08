@@ -309,7 +309,7 @@ window.addEventListener("click", (e) => {
     targetPos.z + distance,
   );
 
-  // Sauvegarde les valeurs actuelles avant kill
+  // ── Sauvegarde et restore les valeurs avant kill ──
   const currentPos = camera.position.clone();
   const currentRotX = camera.rotation.x;
   const currentRotY = camera.rotation.y;
@@ -319,14 +319,8 @@ window.addEventListener("click", (e) => {
   gsap.killTweensOf(camera.position);
   gsap.killTweensOf(camera.rotation);
 
-  // Réapplique les valeurs sauvegardées
   camera.position.copy(currentPos);
   camera.rotation.set(currentRotX, currentRotY, currentRotZ);
-
-  // Calcule la rotation cible avec un clone
-  const dummyCam = camera.clone();
-  dummyCam.position.copy(zoomPos);
-  dummyCam.lookAt(lookOffset);
 
   gsap.to(camera.position, {
     x: zoomPos.x,
@@ -334,8 +328,10 @@ window.addEventListener("click", (e) => {
     z: zoomPos.z,
     duration: 1.2,
     ease: "power2.inOut",
+    onUpdate: () => camera.lookAt(lookOffset),
     onComplete: () => {
       lookAtTarget = lookOffset.clone();
+
       const data = objectData[hoveredObject.name];
       if (data) {
         infoTitle.innerText = data.title;
@@ -347,14 +343,6 @@ window.addEventListener("click", (e) => {
       infoPanel.classList.add("visible");
       document.body.style.cursor = "default";
     },
-  });
-
-  gsap.to(camera.rotation, {
-    x: dummyCam.rotation.x,
-    y: dummyCam.rotation.y,
-    z: dummyCam.rotation.z,
-    duration: 1.2,
-    ease: "power2.inOut",
   });
 });
 
