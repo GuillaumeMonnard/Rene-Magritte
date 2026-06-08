@@ -292,10 +292,8 @@ window.addEventListener("click", (e) => {
   const fov = camera.fov * (Math.PI / 180);
   const distance = (maxDim / 2 / Math.tan(fov / 2)) * 1.6;
 
-  // Point de regard décalé à gauche → objet apparaît à droite
   const fovY = camera.fov * (Math.PI / 180);
   const fovX = 2 * Math.atan(Math.tan(fovY / 2) * camera.aspect);
-
   const screenOffset = 0.4;
   const worldOffset = screenOffset * distance * Math.tan(fovX / 2);
 
@@ -311,9 +309,18 @@ window.addEventListener("click", (e) => {
     targetPos.z + distance,
   );
 
+  // ── Sauvegarde et restore les valeurs avant kill ──
+  const currentPos = camera.position.clone();
+  const currentRotX = camera.rotation.x;
+  const currentRotY = camera.rotation.y;
+  const currentRotZ = camera.rotation.z;
+
   ScrollTrigger.getAll().forEach((st) => st.disable(false));
   gsap.killTweensOf(camera.position);
   gsap.killTweensOf(camera.rotation);
+
+  camera.position.copy(currentPos);
+  camera.rotation.set(currentRotX, currentRotY, currentRotZ);
 
   gsap.to(camera.position, {
     x: zoomPos.x,
@@ -346,9 +353,17 @@ backBtn.addEventListener("click", () => {
   outlinePass.selectedObjects = [];
   infoPanel.classList.remove("visible");
 
+  const currentPos = camera.position.clone();
+  const currentRotX = camera.rotation.x;
+  const currentRotY = camera.rotation.y;
+  const currentRotZ = camera.rotation.z;
+
   ScrollTrigger.getAll().forEach((st) => st.enable());
   gsap.killTweensOf(camera.position);
   gsap.killTweensOf(camera.rotation);
+
+  camera.position.copy(currentPos);
+  camera.rotation.set(currentRotX, currentRotY, currentRotZ);
 
   gsap.to(camera.position, {
     x: savedCameraPos.x,
@@ -379,7 +394,7 @@ window.addEventListener("resize", () => {
   composer.setSize(newW, newH);
 });
 
-//─── About ──────────────────────────────────────────────────────────────────
+// ─── About ───────────────────────────────────────────────────────────────────
 const aboutPanel = document.getElementById("about-panel");
 const aboutClose = document.getElementById("about-close");
 
