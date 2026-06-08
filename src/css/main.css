@@ -36,20 +36,23 @@ body {
 #info-panel.visible {
   opacity: 1;
   pointer-events: all;
+  cursor: default;
 }
 
 #back-button {
   position: absolute;
-  top: 30px;
+  top: 80px;
   right: 40px;
   background: transparent;
   border: none;
   cursor: pointer;
-  z-index: 20;
+  z-index: 100;
 }
+
 #back-button img {
   width: 40px;
   height: auto;
+  pointer-events: none;
 }
 
 .texts {
@@ -66,7 +69,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 50;
+  z-index: 20;
   display: flex;
   flex-direction: row;
   justify-content: center;

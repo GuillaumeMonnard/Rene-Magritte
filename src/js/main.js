@@ -104,7 +104,7 @@ gltfLoader.load(urlScene, (gltf) => {
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-//─── Données des objets ───────────────────────────────────────────────────────
+// ─── Données des objets ───────────────────────────────────────────────────────
 const objectData = {
   OISEAU: {
     title: "L'oiseau",
@@ -128,7 +128,7 @@ const objectData = {
   },
   TABLE: {
     title: "La table",
-    text: "Une table, au centre d’une pièce. Stable, solide, familière. Mais chez Magritte, rien n’est totalement sûr. Parfois elle flotte, parfois elle se transforme. Elle perd sa fonction, son utilité, sa logique. Ce qui devrait soutenir le monde… devient instable. La table n’est plus un objet banal : elle montre que nos repères peuvent basculer à tout moment.",
+    text: "Une table, au centre d'une pièce. Stable, solide, familière. Mais chez Magritte, rien n'est totalement sûr. Parfois elle flotte, parfois elle se transforme. Elle perd sa fonction, son utilité, sa logique. Ce qui devrait soutenir le monde… devient instable. La table n'est plus un objet banal : elle montre que nos repères peuvent basculer à tout moment.",
   },
   CHEVALET: {
     title: "Le chevalet",
@@ -136,41 +136,44 @@ const objectData = {
   },
   CHAPEAU: {
     title: "Le chapeau melon",
-    text: "Un homme en costume. Un visage presque invisible. Et toujours ce chapeau melon. Chez René Magritte, ce n’est pas un simple accessoire. C’est un symbole de l’homme ordinaire. En le répétant encore et encore, il efface les différences. Ces hommes se ressemblent tous. Ils pourraient être n’importe qui. Peut-être même vous. Le chapeau ne cache pas le visage… mais il masque quelque chose de plus profond : l’identité.",
+    text: "Un homme en costume. Un visage presque invisible. Et toujours ce chapeau melon. Chez René Magritte, ce n'est pas un simple accessoire. C'est un symbole de l'homme ordinaire. En le répétant encore et encore, il efface les différences. Ces hommes se ressemblent tous. Ils pourraient être n'importe qui. Peut-être même vous. Le chapeau ne cache pas le visage… mais il masque quelque chose de plus profond : l'identité.",
   },
   MANTEAU: {
     title: "Le manteau",
-    text: "Debout, comme porté par quelqu’un. Mais il n’y a personne. Chez René Magritte, le vêtement remplace l’homme. Il garde la forme… mais pas la présence. Ce n’est plus une protection. C’est une façade. Le corps disparaît, et il ne reste qu’une apparence.",
+    text: "Debout, comme porté par quelqu'un. Mais il n'y a personne. Chez René Magritte, le vêtement remplace l'homme. Il garde la forme… mais pas la présence. Ce n'est plus une protection. C'est une façade. Le corps disparaît, et il ne reste qu'une apparence.",
   },
   DRAPS: {
     title: "Les draps",
-    text: "Deux personnes s’embrassent. Un moment intime, simple. Mais leurs visages sont cachés sous un tissu. Chez René Magritte, ce drap change tout. Il empêche le contact réel. Ils sont proches… mais séparés. Le tissu devient une barrière invisible : on peut aimer quelqu’un, sans jamais vraiment le connaître.",
+    text: "Deux personnes s'embrassent. Un moment intime, simple. Mais leurs visages sont cachés sous un tissu. Chez René Magritte, ce drap change tout. Il empêche le contact réel. Ils sont proches… mais séparés. Le tissu devient une barrière invisible : on peut aimer quelqu'un, sans jamais vraiment le connaître.",
   },
   MIROIR: {
     title: "Le miroir",
-    text: "Mais il ne révèle pas toujours ce que l’on attend. Chez Magritte, le reflet cesse d’être une preuve. Il devient un mystère. Ce que l’on voit n’est pas forcément la vérité. Et ce qui nous échappe est parfois plus important que ce qui apparaît. Le miroir ne montre pas seulement une image. Il interroge le regard. Car se voir n’est pas toujours se connaître. Et derrière chaque reflet demeure une question : sommes-nous ce que nous montrons, ou ce qui reste invisible ?",
+    text: "Mais il ne révèle pas toujours ce que l'on attend. Chez Magritte, le reflet cesse d'être une preuve. Il devient un mystère. Ce que l'on voit n'est pas forcément la vérité. Et ce qui nous échappe est parfois plus important que ce qui apparaît. Le miroir ne montre pas seulement une image. Il interroge le regard. Car se voir n'est pas toujours se connaître. Et derrière chaque reflet demeure une question : sommes-nous ce que nous montrons, ou ce qui reste invisible ?",
   },
   CANNE: {
     title: "La cane",
-    text: "Un simple bâton de marche. Fait pour aider, pour soutenir. Mais chez Magritte, il n’est jamais seulement utile. Parfois il semble vivant, étrange, presque inquiétant. Comme si l’objet dépassait sa fonction. La canne n’est plus juste un support : elle montre que les objets du quotidien peuvent cacher un mystère.",
+    text: "Un simple bâton de marche. Fait pour aider, pour soutenir. Mais chez Magritte, il n'est jamais seulement utile. Parfois il semble vivant, étrange, presque inquiétant. Comme si l'objet dépassait sa fonction. La canne n'est plus juste un support : elle montre que les objets du quotidien peuvent cacher un mystère.",
   },
   FENÊTRE: {
     title: "La fenêtre",
-    text: "Une fenêtre ouverte sur l’extérieur. On s’attend à voir le monde. Mais chez Magritte, ce n’est jamais si simple. Parfois, on voit une image à la place du réel. Parfois, la fenêtre devient elle-même ce qu’elle encadre. Elle ne sépare plus : elle trompe le regard. La fenêtre montre une idée essentielle : voir n’est pas toujours comprendre.",
+    text: "Une fenêtre ouverte sur l'extérieur. On s'attend à voir le monde. Mais chez Magritte, ce n'est jamais si simple. Parfois, on voit une image à la place du réel. Parfois, la fenêtre devient elle-même ce qu'elle encadre. Elle ne sépare plus : elle trompe le regard. La fenêtre montre une idée essentielle : voir n'est pas toujours comprendre.",
   },
   RIDEAUX: {
     title: "Les rideaux",
-    text: "Des rideaux fermés devant une fenêtre. On pense qu’ils cachent simplement la vue. Mais chez Magritte, ils deviennent autre chose. Parfois ils semblent lourds, presque vivants. Comme s’ils empêchaient plus que la lumière d’entrer. Les rideaux ne protègent plus seulement : ils rappellent que ce qu’on ne voit pas existe aussi dans l’image.",
+    text: "Des rideaux fermés devant une fenêtre. On pense qu'ils cachent simplement la vue. Mais chez Magritte, ils deviennent autre chose. Parfois ils semblent lourds, presque vivants. Comme s'ils empêchaient plus que la lumière d'entrer. Les rideaux ne protègent plus seulement : ils rappellent que ce qu'on ne voit pas existe aussi dans l'image.",
   },
   NUAGE: {
     title: "Les nuages",
-    text: "Des nuages dans le ciel. On les imagine légers, naturels, changeants. Mais chez Magritte, ils deviennent autre chose. Ils apparaissent dans des lieux impossibles, à l’intérieur des objets. Ils ne sont plus seulement dans le ciel : ils montrent que le réel peut se déplacer et se transformer.",
+    text: "Des nuages dans le ciel. On les imagine légers, naturels, changeants. Mais chez Magritte, ils deviennent autre chose. Ils apparaissent dans des lieux impossibles, à l'intérieur des objets. Ils ne sont plus seulement dans le ciel : ils montrent que le réel peut se déplacer et se transformer.",
   },
-  PINCEAUX: {
-    title: "Les pinceaux",
-    text: "hihi",
-  },
+  PINCEAUX: { title: "Les pinceaux", text: "lorem ipsum et tout et tout" },
 };
+
+// ─── UI ───────────────────────────────────────────────────────────────────────
+const infoPanel = document.getElementById("info-panel");
+const infoTitle = document.getElementById("info-title");
+const infoText = document.getElementById("info-text");
+const backBtn = document.getElementById("back-button");
 
 // ─── Scroll ───────────────────────────────────────────────────────────────────
 document.body.style.height = "600vh";
@@ -178,51 +181,47 @@ document.body.style.height = "600vh";
 camera.position.set(0, 0.7, 0);
 camera.rotation.x = 0;
 
-const scrollTweens = [];
+gsap.to(camera.position, {
+  z: -34,
+  ease: "power2.inOut",
+  scrollTrigger: {
+    trigger: document.body,
+    start: "top top",
+    end: "80% bottom",
+    scrub: 1.2,
+  },
+});
 
-scrollTweens.push(
-  gsap.to(camera.position, {
-    z: -34,
-    ease: "power2.inOut",
-    scrollTrigger: {
-      trigger: document.body,
-      start: "top top",
-      end: "80% bottom",
-      scrub: 1.2,
-    },
-  }),
-);
+gsap.to(camera.rotation, {
+  x: -Math.PI / 9,
+  ease: "power2.inOut",
+  scrollTrigger: {
+    trigger: document.body,
+    start: "10% top",
+    end: "bottom bottom",
+    scrub: 1.2,
+  },
+});
 
-scrollTweens.push(
-  gsap.to(camera.rotation, {
-    x: -Math.PI / 9,
-    ease: "power2.inOut",
-    scrollTrigger: {
-      trigger: document.body,
-      start: "10% top",
-      end: "bottom bottom",
-      scrub: 1.2,
-    },
-  }),
-);
-
-scrollTweens.push(
-  gsap.to(camera.position, {
-    y: 0,
-    ease: "power2.inOut",
-    scrollTrigger: {
-      trigger: document.body,
-      start: "10% top",
-      end: "bottom bottom",
-      scrub: 1.2,
-    },
-  }),
-);
+gsap.to(camera.position, {
+  y: 0,
+  ease: "power2.inOut",
+  scrollTrigger: {
+    trigger: document.body,
+    start: "10% top",
+    end: "bottom bottom",
+    scrub: 1.2,
+  },
+});
 
 // ─── Tracking des objets ──────────────────────────────────────────────────────
 let hoveredObject = null;
 let lookAtTarget = null;
 let isZoomed = false;
+
+// Position sauvegardée avant le zoom
+let savedCameraPos = null;
+let savedCameraRot = null;
 
 window.addEventListener("mousemove", (e) => {
   if (!sceneRoot || isZoomed) return;
@@ -247,16 +246,16 @@ window.addEventListener("mousemove", (e) => {
 });
 
 // ─── Clic sur un objet ────────────────────────────────────────────────────────
-const infoPanel = document.getElementById("info-panel");
-const infoTitle = document.getElementById("info-title");
-const infoText = document.getElementById("info-text");
-const backBtn = document.getElementById("back-button");
-console.log("backBtn:", backBtn);
-
-window.addEventListener("click", () => {
+window.addEventListener("click", (e) => {
+  // Ignore si c'est le bouton retour
+  if (e.target.closest("#back-button")) return;
   if (!hoveredObject || isZoomed) return;
 
   isZoomed = true;
+
+  // Sauvegarde la position actuelle de la caméra
+  savedCameraPos = camera.position.clone();
+  savedCameraRot = camera.rotation.clone();
 
   const box = new THREE.Box3().setFromObject(hoveredObject);
   const targetPos = new THREE.Vector3();
@@ -282,7 +281,6 @@ window.addEventListener("click", () => {
     onComplete: () => {
       lookAtTarget = targetPos.clone();
 
-      // Affiche le panneau
       const data = objectData[hoveredObject.name];
       if (data) {
         infoTitle.innerText = data.title;
@@ -296,29 +294,31 @@ window.addEventListener("click", () => {
   });
 });
 
-backBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-
+// ─── Bouton retour ────────────────────────────────────────────────────────────
+backBtn.addEventListener("click", () => {
+  console.log("retour cliqulé");
   isZoomed = false;
   lookAtTarget = null;
   outlinePass.selectedObjects = [];
   infoPanel.classList.remove("visible");
 
-  const scrollProgress =
-    window.scrollY / (document.body.scrollHeight - window.innerHeight);
-
   ScrollTrigger.getAll().forEach((st) => st.enable());
+  gsap.killTweensOf(camera.position);
+  gsap.killTweensOf(camera.rotation);
 
+  // Restaure la position sauvegardée
   gsap.to(camera.position, {
-    x: 0,
-    y: 0,
-    z: -34 * Math.min(scrollProgress / 0.8, 1),
+    x: savedCameraPos.x,
+    y: savedCameraPos.y,
+    z: savedCameraPos.z,
     duration: 1.2,
     ease: "power2.inOut",
   });
 
   gsap.to(camera.rotation, {
-    x: (-Math.PI / 9) * Math.min((scrollProgress - 0.1) / 0.9, 1),
+    x: savedCameraRot.x,
+    y: savedCameraRot.y,
+    z: savedCameraRot.z,
     duration: 1.2,
     ease: "power2.inOut",
   });
