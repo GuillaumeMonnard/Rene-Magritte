@@ -114,14 +114,7 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 // ─── Objets non interactifs ───────────────────────────────────────────────────
-const nonInteractable = [
-  "NUAGE",
-  "Plane014",
-  "PORTE-MANTEAUX",
-  "couloir",
-  "TABLEAU",
-  "light",
-];
+const nonInteractable = ["NUAGE", "Plane014", "COULOIR"];
 
 // ─── Données des objets ───────────────────────────────────────────────────────
 const objectData = {
@@ -143,7 +136,7 @@ const objectData = {
   },
   POMME: {
     title: "La pomme",
-    text: "Un homme se tient face à vous. Costume, chapeau melon... tout semble normal.\n\nSauf une chose: une pomme flotte devant son visage. Dans cette oeuvre, ce détail change tout. La pomme empêche de voir l'essentiel: l'identité de l'homme. Magritte joue avec votre regard. Vous voyez l'objet, mais vous cherchez ce qui est caché derrière.\n\nC'est là l'idée: nous ne voyons jamais complètement la réalité. Quelque chose nous échappe toujours.",
+    text: "Un homme se tient face à vous. Costume, chapeau melon... tout semble normal.\n\nSauf une chose: une pomme flotte devant son visage. Dans cette oeuvre, ce détail change tout. La pomme empêche de voir l'essentiel: l'identité de l'homme.\n\nMagritte joue avec votre regard. Vous voyez l'objet, mais vous cherchez ce qui est caché derrière. C'est là l'idée: nous ne voyons jamais complètement la réalité. Quelque chose nous échappe toujours.",
   },
   TABLE: {
     title: "La table",
@@ -240,7 +233,6 @@ let isZoomed = false;
 let savedCameraPos = null;
 let savedCameraRot = null;
 
-// Fonction pour remonter au parent direct de sceneRoot
 function getTopObject(hit) {
   let object = hit;
   while (object.parent && object.parent !== sceneRoot) {
@@ -259,8 +251,6 @@ window.addEventListener("mousemove", (e) => {
 
   if (intersects.length > 0) {
     const object = getTopObject(intersects[0].object);
-    //TEST POUR OBJETS NON INTERACTIFS
-    // console.log("hover", object.name);
 
     if (nonInteractable.includes(object.name)) {
       hoveredObject = null;
@@ -295,10 +285,30 @@ window.addEventListener("click", (e) => {
   const targetPos = new THREE.Vector3();
   box.getCenter(targetPos);
 
+  const size = new THREE.Vector3();
+  box.getSize(size);
+  const maxDim = Math.max(size.x, size.y, size.z);
+
+  const fov = camera.fov * (Math.PI / 180);
+  const distance = (maxDim / 2 / Math.tan(fov / 2)) * 1.6;
+
+  // Point de regard décalé à gauche → objet apparaît à droite
+  const fovY = camera.fov * (Math.PI / 180);
+  const fovX = 2 * Math.atan(Math.tan(fovY / 2) * camera.aspect);
+
+  const screenOffset = 0.4;
+  const worldOffset = screenOffset * distance * Math.tan(fovX / 2);
+
+  const lookOffset = new THREE.Vector3(
+    targetPos.x - worldOffset,
+    targetPos.y,
+    targetPos.z,
+  );
+
   const zoomPos = new THREE.Vector3(
-    targetPos.x,
-    targetPos.y + 0.5,
-    targetPos.z + 2,
+    targetPos.x - worldOffset,
+    targetPos.y,
+    targetPos.z + distance,
   );
 
   ScrollTrigger.getAll().forEach((st) => st.disable(false));
@@ -311,9 +321,9 @@ window.addEventListener("click", (e) => {
     z: zoomPos.z,
     duration: 1.2,
     ease: "power2.inOut",
-    onUpdate: () => camera.lookAt(targetPos),
+    onUpdate: () => camera.lookAt(lookOffset),
     onComplete: () => {
-      lookAtTarget = targetPos.clone();
+      lookAtTarget = lookOffset.clone();
 
       const data = objectData[hoveredObject.name];
       if (data) {
@@ -331,7 +341,6 @@ window.addEventListener("click", (e) => {
 
 // ─── Bouton retour ────────────────────────────────────────────────────────────
 backBtn.addEventListener("click", () => {
-  console.log("retour cliqué");
   isZoomed = false;
   lookAtTarget = null;
   outlinePass.selectedObjects = [];
