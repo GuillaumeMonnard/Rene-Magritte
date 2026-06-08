@@ -114,7 +114,7 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 // ─── Objets non interactifs ───────────────────────────────────────────────────
-const nonInteractable = ["NUAGE", "Plane014", "couloir", "tableau", "light"];
+const nonInteractable = ["NUAGE", "Plane014", "couloir", "TABLEAU", "light"];
 
 // ─── Données des objets ───────────────────────────────────────────────────────
 const objectData = {
