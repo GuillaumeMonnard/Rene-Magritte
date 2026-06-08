@@ -114,7 +114,7 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 // ─── Objets non interactifs ───────────────────────────────────────────────────
-const nonInteractable = ["NUAGE", "Plane014", "COULOIR"];
+const nonInteractable = ["NUAGE", "Plane014", "couloir"];
 
 // ─── Données des objets ───────────────────────────────────────────────────────
 const objectData = {
@@ -377,6 +377,18 @@ window.addEventListener("resize", () => {
 
   renderer.setSize(newW, newH);
   composer.setSize(newW, newH);
+});
+
+//─── About ──────────────────────────────────────────────────────────────────
+const aboutPanel = document.getElementById("about-panel");
+const aboutClose = document.getElementById("about-close");
+
+document.querySelector(".hat-icon").addEventListener("click", () => {
+  aboutPanel.classList.add("visible");
+});
+
+aboutClose.addEventListener("click", () => {
+  aboutPanel.classList.remove("visible");
 });
 
 // ─── Render loop ─────────────────────────────────────────────────────────────
