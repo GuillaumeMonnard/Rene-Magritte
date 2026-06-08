@@ -114,33 +114,33 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 // ─── Objets non interactifs ───────────────────────────────────────────────────
-const nonInteractable = ["NUAGE", "Plane014", "couloir"];
+const nonInteractable = ["NUAGE", "Plane014", "couloir", "tableau", "light"];
 
 // ─── Données des objets ───────────────────────────────────────────────────────
 const objectData = {
   OISEAU: {
     title: "L'oiseau",
-    text: "On pense à la liberté, au ciel, au mouvement.\n\nMais chez Magritte, il n'est pas toujours en vol. Parfois il est figé, étrange, hors de son contexte. Il n'est plus seulement un symbole de liberté: il devient une forme, une idée, une présence déroutante.",
+    text: "On pense à la liberté, au ciel, au mouvement.\n\nMais chez Magritte, il n'est pas toujours en vol. Parfois il est figé, étrange, hors de son contexte.\n\nIl n'est plus seulement un symbole de liberté: il devient une forme, une idée, une présence déroutante.",
   },
   CAGE: {
     title: "La cage",
-    text: "Une cage. On pense à la prison, à la contrainte.\n\nMais chez Magritte, elle n'est pas toujours fermée. Parfois elle semble fragile, irréelle, presque imaginaire. Elle ne retient pas seulement un corps: elle montre surtout l'idée même de limite.",
+    text: "On pense à la prison, à la contrainte.\n\nMais chez Magritte, elle n'est pas toujours fermée. Parfois elle semble fragile, irréelle, presque imaginaire.\n\nElle ne retient pas seulement un corps: elle montre surtout l'idée même de limite.",
   },
   PORTE: {
     title: "La porte",
-    text: "Une porte devrait ouvrir sur une autre pièce, sur quelque chose de réel, de concret.\n\nMais chez René Magritte, elle peut s'ouvrir sur... un ciel, une mer, un paysage impossible. Ce n'est plus un passage, c'est une illusion. La porte n'emmène nulle part. Elle remet en doute ce que vous pensiez solide: les murs, l'espace, la réalité elle-même.",
+    text: "Une porte devrait ouvrir sur une autre pièce, sur quelque chose de réel, de concret.\n\nMais chez René Magritte, elle peut s'ouvrir sur... un ciel, une mer, un paysage impossible. Ce n'est plus un passage, c'est une illusion.\n\nLa porte n'emmène nulle part.\n\nElle remet en doute ce que vous pensiez solide: les murs, l'espace, la réalité elle-même.",
   },
   PIPE: {
     title: "La pipe",
-    text: "Vous voyez une pipe. Votre cerveau le sait immédiatement.\n\nEt pourtant, Magritte écrit: 'ceci n'est pas une pipe'. Pourquoi? Parce que ce n'est pas une vraie pipe. C'est seulement son image. Vous ne pouvez pas la toucher, ni la remplir, ni la fumer. Magritte vous montre une chose simple: une image n'est pas la réalité.",
+    text: "Vous voyez une pipe. Votre cerveau le sait immédiatement.\n\nEt pourtant, Magritte écrit: 'ceci n'est pas une pipe'.\n\nPourquoi? Parce que ce n'est pas une vraie pipe.\n\nC'est seulement son image. Vous ne pouvez pas la toucher, ni la remplir, ni la fumer. Magritte vous montre une chose simple: une image n'est pas la réalité.",
   },
   POMME: {
     title: "La pomme",
-    text: "Un homme se tient face à vous. Costume, chapeau melon... tout semble normal.\n\nSauf une chose: une pomme flotte devant son visage. Dans cette oeuvre, ce détail change tout. La pomme empêche de voir l'essentiel: l'identité de l'homme.\n\nMagritte joue avec votre regard. Vous voyez l'objet, mais vous cherchez ce qui est caché derrière. C'est là l'idée: nous ne voyons jamais complètement la réalité. Quelque chose nous échappe toujours.",
+    text: "Un homme se tient face à vous. Costume, chapeau melon... tout semble normal.\n\nSauf une chose: une pomme flotte devant son visage.\n\nDans cette oeuvre, ce détail change tout. La pomme empêche de voir l'essentiel: l'identité de l'homme.\n\nMagritte joue avec votre regard. Vous voyez l'objet, mais vous cherchez ce qui est caché derrière.\n\nC'est là l'idée: nous ne voyons jamais complètement la réalité. Quelque chose nous échappe toujours.",
   },
   TABLE: {
     title: "La table",
-    text: "Une table, au centre d'une pièce. Stable, solide, familière.\n\nMais chez Magritte, rien n'est totalement sûr. Parfois elle flotte, parfois elle se transforme. Elle perd sa fonction, son utilité, sa logique. Ce qui devrait soutenir le monde… devient instable. La table n'est plus un objet banal : elle montre que nos repères peuvent basculer à tout moment.",
+    text: "Une table, au centre d'une pièce. Stable, solide, familière.\n\nMais chez Magritte, rien n'est totalement sûr.\n\nParfois elle flotte, parfois elle se transforme.\n\nElle perd sa fonction, son utilité, sa logique.\n\nCe qui devrait soutenir le monde… devient instable.\n\nLa table n'est plus un objet banal : elle montre que nos repères peuvent basculer à tout moment.",
   },
   CHEVALET: {
     title: "Le chevalet",
@@ -148,7 +148,7 @@ const objectData = {
   },
   CHAPEAU: {
     title: "Le chapeau melon",
-    text: "Un homme en costume. Un visage presque invisible. Et toujours ce chapeau melon.\n\nChez René Magritte, ce n'est pas un simple accessoire. C'est un symbole de l'homme ordinaire. En le répétant encore et encore, il efface les différences. Ces hommes se ressemblent tous. Ils pourraient être n'importe qui. Peut-être même vous.\n\nLe chapeau ne cache pas le visage… mais il masque quelque chose de plus profond : l'identité.",
+    text: "Un homme en costume. Un visage presque invisible. Et toujours ce chapeau melon.\n\nChez René Magritte, ce n'est pas un simple accessoire.\n\nC'est un symbole de l'homme ordinaire. En le répétant encore et encore, il efface les différences. Ces hommes se ressemblent tous. Ils pourraient être n'importe qui. Peut-être même vous.\n\nLe chapeau ne cache pas le visage… mais il masque quelque chose de plus profond : l'identité.",
   },
   MANTEAU: {
     title: "Le manteau",
@@ -156,27 +156,27 @@ const objectData = {
   },
   DRAPS: {
     title: "Les draps",
-    text: "Deux personnes s'embrassent. Un moment intime, simple.\n\nMais leurs visages sont cachés sous un tissu. Chez René Magritte, ce drap change tout. Il empêche le contact réel. Ils sont proches… mais séparés. Le tissu devient une barrière invisible : on peut aimer quelqu'un, sans jamais vraiment le connaître.",
+    text: "Deux personnes s'embrassent. Un moment intime, simple.\n\nMais leurs visages sont cachés sous un tissu.\n\nChez René Magritte, ce drap change tout. Il empêche le contact réel.\n\nIls sont proches… mais séparés.\n\nLe tissu devient une barrière invisible : on peut aimer quelqu'un, sans jamais vraiment le connaître.",
   },
   MIROIR: {
     title: "Le miroir",
-    text: "Mais il ne révèle pas toujours ce que l'on attend.\n\nChez Magritte, le reflet cesse d'être une preuve. Il devient un mystère. Ce que l'on voit n'est pas forcément la vérité. Et ce qui nous échappe est parfois plus important que ce qui apparaît.\n\nLe miroir ne montre pas seulement une image. Il interroge le regard. Car se voir n'est pas toujours se connaître. Et derrière chaque reflet demeure une question : sommes-nous ce que nous montrons, ou ce qui reste invisible ?",
+    text: "Mais il ne révèle pas toujours ce que l'on attend.\n\nChez Magritte, le reflet cesse d'être une preuve. Il devient un mystère.\n\nCe que l'on voit n'est pas forcément la vérité. Et ce qui nous échappe est parfois plus important que ce qui apparaît.\n\nLe miroir ne montre pas seulement une image.\n\nIl interroge le regard. Car se voir n'est pas toujours se connaître.\n\nEt derrière chaque reflet demeure une question : sommes-nous ce que nous montrons, ou ce qui reste invisible ?",
   },
   CANNE: {
     title: "La canne",
-    text: "Un simple bâton de marche. Fait pour aider, pour soutenir.\n\nMais chez Magritte, il n'est jamais seulement utile. Parfois il semble vivant, étrange, presque inquiétant. Comme si l'objet dépassait sa fonction. La canne n'est plus juste un support : elle montre que les objets du quotidien peuvent cacher un mystère.",
+    text: "Un simple bâton de marche. Fait pour aider, pour soutenir.\n\nMais chez Magritte, il n'est jamais seulement utile.\n\nParfois il semble vivant, étrange, presque inquiétant.\n\nComme si l'objet dépassait sa fonction.\n\nLa canne n'est plus juste un support : elle montre que les objets du quotidien peuvent cacher un mystère.",
   },
-  FENÊTRE: {
+  FENETRE: {
     title: "La fenêtre",
-    text: "Une fenêtre ouverte sur l'extérieur. On s'attend à voir le monde.\n\nMais chez Magritte, ce n'est jamais si simple. Parfois, on voit une image à la place du réel. Parfois, la fenêtre devient elle-même ce qu'elle encadre. Elle ne sépare plus : elle trompe le regard.\n\nLa fenêtre montre une idée essentielle : voir n'est pas toujours comprendre.",
+    text: "Une fenêtre ouverte sur l'extérieur. On s'attend à voir le monde.\n\nMais chez Magritte, ce n'est jamais si simple.\n\nParfois, on voit une image à la place du réel.\n\nParfois, la fenêtre devient elle-même ce qu'elle encadre. Elle ne sépare plus : elle trompe le regard.\n\nLa fenêtre montre une idée essentielle : voir n'est pas toujours comprendre.",
   },
   RIDEAUX: {
     title: "Les rideaux",
-    text: "Des rideaux fermés devant une fenêtre. On pense qu'ils cachent simplement la vue.\n\nMais chez Magritte, ils deviennent autre chose. Parfois ils semblent lourds, presque vivants. Comme s'ils empêchaient plus que la lumière d'entrer. Les rideaux ne protègent plus seulement : ils rappellent que ce qu'on ne voit pas existe aussi dans l'image.",
+    text: "Des rideaux fermés devant une fenêtre. On pense qu'ils cachent simplement la vue.\n\nMais chez Magritte, ils deviennent autre chose.\n\nParfois ils semblent lourds, presque vivants.\n\nComme s'ils empêchaient plus que la lumière d'entrer. Les rideaux ne protègent plus seulement : ils rappellent que ce qu'on ne voit pas existe aussi dans l'image.",
   },
   NUAGE: {
     title: "Les nuages",
-    text: "Des nuages dans le ciel. On les imagine légers, naturels, changeants.\n\nMais chez Magritte, ils deviennent autre chose. Ils apparaissent dans des lieux impossibles, à l'intérieur des objets. Ils ne sont plus seulement dans le ciel : ils montrent que le réel peut se déplacer et se transformer.",
+    text: "Des nuages dans le ciel. On les imagine légers, naturels, changeants.\n\nMais chez Magritte, ils deviennent autre chose. Ils apparaissent dans des lieux impossibles, à l'intérieur des objets.\n\nIls ne sont plus seulement dans le ciel : ils montrent que le réel peut se déplacer et se transformer.",
   },
   PINCEAUX: { title: "Les pinceaux", text: "hihi" },
 };

@@ -33,6 +33,10 @@ body {
   transition: transform 0.6s ease;
 }
 
+#info-text {
+  white-space: pre-line;
+}
+
 #info-panel.visible {
   transform: translateX(0);
   pointer-events: all;
@@ -147,5 +151,9 @@ h1 {
 p {
   font-family: Montserrat;
   font-size: 20px;
-  white-space: pre-line;
+  line-height: 140%;
+}
+
+#auteur-rices {
+  font-size: 16px;
 }
