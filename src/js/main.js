@@ -138,7 +138,7 @@ const gradientBlurShader = {
 
     void main() {
       float t = clamp(1.0 - vUv.x / 0.62, 0.0, 1.0) * intensity;
-      float radius = t * 10.0;
+      float radius = t * 5.0;
       vec2 texel = 1.0 / resolution;
       vec4 color = vec4(0.0);
       float total = 0.0;
@@ -554,10 +554,22 @@ const aboutClose = document.getElementById("about-close");
 
 document.querySelector(".hat-icon").addEventListener("click", () => {
   aboutPanel.classList.add("visible");
+
+  gsap.timeline()
+    .fromTo(aboutPanel,                              { opacity: 0 },         { opacity: 1, duration: 0.45, ease: "power2.out" })
+    .fromTo(aboutPanel.querySelector("h1"),          { opacity: 0, y: -40 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, "-=0.1")
+    .fromTo(aboutClose,                              { opacity: 0, y: 0 },   { opacity: 1, y: 0, duration: 0.4,  ease: "power2.out" }, "<")
+    .fromTo(document.getElementById("about-p"),      { opacity: 0, y:  40 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, "-=0.35")
+    .fromTo(document.getElementById("auteur-rices"), { opacity: 0, y:  40 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, "-=0.3");
 });
 
 aboutClose.addEventListener("click", () => {
-  aboutPanel.classList.remove("visible");
+  gsap.timeline({ onComplete: () => aboutPanel.classList.remove("visible") })
+    .to(document.getElementById("auteur-rices"), { opacity: 0, y: 40, duration: 0.3,  ease: "power3.in" })
+    .to(document.getElementById("about-p"),      { opacity: 0, y: 40, duration: 0.35, ease: "power3.in" }, "-=0.15")
+    .to(aboutPanel.querySelector("h1"), { opacity: 0, y: -40, duration: 0.35, ease: "power3.in" }, "-=0.2")
+    .to(aboutClose,                     { opacity: 0,         duration: 0.25, ease: "power2.in" }, "<")
+    .to(aboutPanel, { opacity: 0, duration: 0.3, ease: "power2.in" }, "-=0.1");
 });
 
 // ─── Render loop ─────────────────────────────────────────────────────────────
