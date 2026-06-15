@@ -223,7 +223,10 @@ const objectData = {
     title: "Les nuages",
     text: "Des nuages dans le ciel. On les imagine légers, naturels, changeants.\n\nMais chez Magritte, ils deviennent autre chose. Ils apparaissent dans des lieux impossibles, à l'intérieur des objets.\n\nIls ne sont plus seulement dans le ciel : ils montrent que le réel peut se déplacer et se transformer.",
   },
-  PINCEAUX: { title: "Les pinceaux", text: "hihi" },
+  PINCEAUX: {
+    title: "Les pinceaux",
+    text: "Un pinceau devrait laisser une trace. Reproduire ce que l'œil voit, ce que la main sent, ce que le monde est. \n\nMais entre les mains de René Magritte, le pinceau trahit. Il peint une pomme qui cache un visage. Un homme qui flotte. Une pipe qui n'en est pas une. \n\nCe n'est plus un outil. C'est un menteur fidèle.\n\nLe pinceau ne représente pas la réalité — il la contredit, avec une précision chirurgicale, et un sourire que personne ne voit.",
+  },
 };
 
 // ─── UI ───────────────────────────────────────────────────────────────────────
