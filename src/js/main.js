@@ -572,9 +572,52 @@ aboutClose.addEventListener("click", () => {
     .to(aboutPanel, { opacity: 0, duration: 0.3, ease: "power2.in" }, "-=0.1");
 });
 
+// ─── Mouse parallax ──────────────────────────────────────────────────────────
+const mouse = { x: 0, y: 0 };
+const mouseSmooth = { x: 0, y: 0 };
+
+window.addEventListener("mousemove", (e) => {
+  mouse.x = (e.clientX / window.innerWidth  - 0.5) * 2;
+  mouse.y = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+const setTitleX    = gsap.quickSetter("#intro-title",    "x", "px");
+const setTitleY    = gsap.quickSetter("#intro-title",    "y", "px");
+const setContentX  = gsap.quickSetter(".about-content",  "x", "px");
+const setContentY  = gsap.quickSetter(".about-content",  "y", "px");
+const setACloseX   = gsap.quickSetter("#about-close",    "x", "px");
+const setACloseY   = gsap.quickSetter("#about-close",    "y", "px");
+
 // ─── Render loop ─────────────────────────────────────────────────────────────
 function animate() {
   requestAnimationFrame(animate);
+
+  mouseSmooth.x += (mouse.x - mouseSmooth.x) * 0.08;
+  mouseSmooth.y += (mouse.y - mouseSmooth.y) * 0.08;
+
+  const px = mouseSmooth.x;
+  const py = mouseSmooth.y;
+
+  if (window.scrollY < window.innerHeight * 0.15) {
+    setTitleX(px * 25);
+    setTitleY(py * 15);
+  } else {
+    setTitleX(0);
+    setTitleY(0);
+  }
+
+  if (aboutPanel.classList.contains("visible")) {
+    setContentX(px * 20);
+    setContentY(py * 12);
+    setACloseX(px * 10);
+    setACloseY(py * 6);
+  } else {
+    setContentX(0);
+    setContentY(0);
+    setACloseX(0);
+    setACloseY(0);
+  }
+
   if (lookAtTarget) camera.lookAt(lookAtTarget);
 
   renderer.render(scene, camera);
