@@ -386,6 +386,13 @@ gsap.to("#intro-scroll", {
   scrollTrigger: introScrollTrigger,
 });
 
+gsap.to("#intro-hommage", {
+  opacity: 0,
+  y: 40,
+  ease: "power2.in",
+  scrollTrigger: introScrollTrigger,
+});
+
 gsap.to("#intro", {
   backgroundColor: "rgba(38, 105, 136, 0)",
   ease: "power2.in",
@@ -532,8 +539,8 @@ window.addEventListener("mousemove", (e) => {
   mouse.y = (e.clientY / window.innerHeight - 0.5) * 2;
 });
 
-const setTitleX    = gsap.quickSetter("#intro-title",    "x", "px");
-const setTitleY    = gsap.quickSetter("#intro-title",    "y", "px");
+const setTitleX    = gsap.quickSetter("#intro-content",  "x", "px");
+const setTitleY    = gsap.quickSetter("#intro-content",  "y", "px");
 const setContentX  = gsap.quickSetter(".about-content",  "x", "px");
 const setContentY  = gsap.quickSetter(".about-content",  "y", "px");
 const setACloseX   = gsap.quickSetter("#about-close",    "x", "px");
