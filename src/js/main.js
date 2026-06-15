@@ -194,7 +194,7 @@ gltfLoader.load(urlScene, (gltf) => {
     // Côté gauche ou droit selon la position de l'objet dans la scène
     const xSign = worldCenter.x >= 0 ? 1 : -1;
     const xEdge = xSign > 0 ? bbox.max.x : bbox.min.x;
-    const worldSidePos = new THREE.Vector3(xEdge + xSign * 0.25, worldCenter.y, worldCenter.z);
+    const worldSidePos = new THREE.Vector3(xEdge + xSign * 0.08, worldCenter.y, worldCenter.z);
     label.position.copy(obj.worldToLocal(worldSidePos));
     obj.add(label);
 
