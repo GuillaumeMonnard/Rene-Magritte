@@ -55,6 +55,11 @@ video {
 
 body {
   height: 600vh;
+  cursor: url('../assets/img/cursor.svg') 10 7, auto;
+}
+
+* {
+  cursor: url('../assets/img/cursor.svg') 10 7, auto !important;
 }
 
 #info-panel {
