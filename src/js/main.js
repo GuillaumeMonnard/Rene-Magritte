@@ -23,11 +23,10 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(w, h);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.5;
+renderer.toneMappingExposure = 0.75;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.shadowMap.enabled = true;
-// renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.shadowMap.type = THREE.BasicShadowMap;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 document.body.appendChild(renderer.domElement);
 renderer.domElement.style.position = "fixed";
@@ -37,27 +36,29 @@ renderer.domElement.style.left = "0";
 // ─── Scene ───────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x6aabcc);
-scene.fog = new THREE.FogExp2(0x6aabcc, 0.012);
+scene.fog = new THREE.FogExp2(0x6aabcc, 0.018);
 
 // ─── Lights ──────────────────────────────────────────────────────────────────
-const ambientLight = new THREE.AmbientLight(0xfff5e0, 0.4);
+const ambientLight = new THREE.AmbientLight(0xfff5e0, 0.6);
 scene.add(ambientLight);
 
-const shadowLight = new THREE.DirectionalLight(0xfff5e0, 1.5);
-shadowLight.position.set(3, 12, 5);
+const shadowLight = new THREE.DirectionalLight(0xfff5e0, 2.5);
+shadowLight.position.set(-12, 12, 5);
 shadowLight.castShadow = true;
-shadowLight.shadow.mapSize.width = 2048;
-shadowLight.shadow.mapSize.height = 2048;
+shadowLight.shadow.mapSize.width = 4096;
+shadowLight.shadow.mapSize.height = 4096;
+shadowLight.shadow.bias = -0.001;
 shadowLight.shadow.camera.near = 0.1;
-shadowLight.shadow.camera.far = 60;
-shadowLight.shadow.camera.left = -20;
-shadowLight.shadow.camera.right = 20;
-shadowLight.shadow.camera.top = 20;
-shadowLight.shadow.camera.bottom = -20;
+shadowLight.shadow.camera.far = 100;
+shadowLight.shadow.camera.left = -30;
+shadowLight.shadow.camera.right = 30;
+shadowLight.shadow.camera.top = 30;
+shadowLight.shadow.camera.bottom = -30;
+shadowLight.target.position.set(0, 0, -17);
 scene.add(shadowLight);
 scene.add(shadowLight.target);
 
-const fillLight = new THREE.DirectionalLight(0xaac8ff, 0.4);
+const fillLight = new THREE.DirectionalLight(0xaac8ff, 0.5);
 fillLight.position.set(-5, 3, -5);
 scene.add(fillLight);
 
@@ -66,7 +67,7 @@ const rgbeLoader = new RGBELoader();
 rgbeLoader.load(urlHdri, (texture) => {
   texture.mapping = THREE.EquirectangularReflectionMapping;
   scene.environment = texture;
-  scene.environmentIntensity = 0.7;
+  scene.environmentIntensity = 0.4;
 });
 
 // ─── Camera ──────────────────────────────────────────────────────────────────
@@ -78,10 +79,9 @@ scene.add(camera);
 const renderTarget = new THREE.WebGLRenderTarget(w, h, {
   type: THREE.HalfFloatType,
 });
-const composer = new EffectComposer(renderer, renderTarget);
+const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.1, 0.5, 0.3);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.4, 0.8, 0.7);
 composer.addPass(bloomPass);
 
 const outlinePass = new OutlinePass(new THREE.Vector2(w, h), scene, camera);
