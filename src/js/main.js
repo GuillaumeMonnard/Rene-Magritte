@@ -330,7 +330,9 @@ document.body.style.height = "600vh";
 camera.position.set(0, 0.7, 0);
 camera.rotation.x = 0;
 
-gsap.to(camera.position, {
+const cameraBase = { y: 0.7, z: 0, rotX: 0 };
+
+gsap.to(cameraBase, {
   z: -34,
   ease: "power2.inOut",
   scrollTrigger: {
@@ -341,8 +343,8 @@ gsap.to(camera.position, {
   },
 });
 
-gsap.to(camera.rotation, {
-  x: -Math.PI / 9,
+gsap.to(cameraBase, {
+  rotX: -Math.PI / 9,
   ease: "power2.inOut",
   scrollTrigger: {
     trigger: document.body,
@@ -352,7 +354,7 @@ gsap.to(camera.rotation, {
   },
 });
 
-gsap.to(camera.position, {
+gsap.to(cameraBase, {
   y: 0,
   ease: "power2.inOut",
   scrollTrigger: {
@@ -404,14 +406,10 @@ const dotMap = {};
 let hoveredObject = null;
 let lookAtTarget = null;
 let isZoomed = false;
-let savedCameraPos = null;
-let savedCameraRot = null;
+let isReturning = false;
 
 // ─── Zoom vers un objet ───────────────────────────────────────────────────────
 function zoomToObject(obj) {
-  savedCameraPos = camera.position.clone();
-  savedCameraRot = camera.rotation.clone();
-
   const box = new THREE.Box3().setFromObject(obj);
   const targetPos = box.getCenter(new THREE.Vector3());
 
@@ -439,8 +437,6 @@ function zoomToObject(obj) {
   tempCam.position.copy(zoomPos);
   tempCam.lookAt(lookOffset);
   const targetRot = tempCam.rotation.clone();
-
-  ScrollTrigger.getAll().forEach((st) => st.disable(false));
 
   gsap.to(camera.position, {
     x: zoomPos.x,
@@ -470,24 +466,25 @@ function zoomToObject(obj) {
 // ─── Bouton retour ────────────────────────────────────────────────────────────
 backBtn.addEventListener("click", () => {
   isZoomed = false;
+  isReturning = true;
   lookAtTarget = null;
   outlinePass.selectedObjects = [];
   infoPanel.classList.remove("visible");
   Object.values(dotMap).forEach((d) => d.classList.remove("hidden"));
 
   gsap.to(camera.position, {
-    x: savedCameraPos.x,
-    y: savedCameraPos.y,
-    z: savedCameraPos.z,
+    x: 0,
+    y: cameraBase.y,
+    z: cameraBase.z,
     duration: 1.2,
     ease: "power2.inOut",
-    onComplete: () => ScrollTrigger.getAll().forEach((st) => st.enable()),
+    onComplete: () => { isReturning = false; },
   });
 
   gsap.to(camera.rotation, {
-    x: savedCameraRot.x,
-    y: savedCameraRot.y,
-    z: savedCameraRot.z,
+    x: cameraBase.rotX,
+    y: 0,
+    z: 0,
     duration: 1.2,
     ease: "power2.inOut",
   });
@@ -574,6 +571,12 @@ function animate() {
     setContentY(0);
     setACloseX(0);
     setACloseY(0);
+  }
+
+  if (!isZoomed && !isReturning) {
+    camera.position.z = cameraBase.z;
+    camera.position.y = cameraBase.y;
+    camera.rotation.x = cameraBase.rotX;
   }
 
   if (lookAtTarget) camera.lookAt(lookAtTarget);
