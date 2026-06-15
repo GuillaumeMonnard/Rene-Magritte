@@ -161,6 +161,13 @@ gltfLoader.load(urlScene, (gltf) => {
     const obj = sceneRoot.getObjectByName(name);
     if (!obj) return;
 
+    const bbox = new THREE.Box3().setFromObject(obj);
+    const worldCenter = bbox.getCenter(new THREE.Vector3());
+    const size = new THREE.Vector3();
+    bbox.getSize(size);
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const hoverScale = Math.min(Math.max(1 + 0.25 / maxDim, 1.1), 1.8);
+
     const wrapper = document.createElement("div");
 
     const div = document.createElement("div");
@@ -170,10 +177,12 @@ gltfLoader.load(urlScene, (gltf) => {
     div.addEventListener("mouseenter", () => {
       if (isZoomed) return;
       div.classList.add("hovered");
+      gsap.to(obj.scale, { x: hoverScale, y: hoverScale, z: hoverScale, duration: 0.3, ease: "power2.out" });
     });
 
     div.addEventListener("mouseleave", () => {
       div.classList.remove("hovered");
+      gsap.to(obj.scale, { x: 1, y: 1, z: 1, duration: 0.3, ease: "power2.out" });
     });
 
     div.addEventListener("click", (e) => {
@@ -189,14 +198,13 @@ gltfLoader.load(urlScene, (gltf) => {
     });
 
     const label = new CSS2DObject(wrapper);
-    const bbox = new THREE.Box3().setFromObject(obj);
-    const worldCenter = bbox.getCenter(new THREE.Vector3());
-    // Côté gauche ou droit selon la position de l'objet dans la scène
     const xSign = worldCenter.x >= 0 ? 1 : -1;
     const xEdge = xSign > 0 ? bbox.max.x : bbox.min.x;
     const worldSidePos = new THREE.Vector3(xEdge + xSign * 0.08, worldCenter.y, worldCenter.z);
-    label.position.copy(obj.worldToLocal(worldSidePos));
-    obj.add(label);
+    const anchor = new THREE.Object3D();
+    anchor.position.copy(worldSidePos);
+    anchor.add(label);
+    scene.add(anchor);
 
     dotMap[name] = div;
   });
