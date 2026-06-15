@@ -63,8 +63,8 @@ body {
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
   background: linear-gradient(
     90deg,
-    rgba(0, 0, 0, 0.2) 40%,
-    rgba(0, 0, 0, 0) 65%
+    #266988 0%,
+    rgba(38, 105, 136, 0) 55%
   );
   position: fixed;
   inset: 0;
@@ -177,18 +177,6 @@ body {
   position: relative;
 }
 
-.texts::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.35) 60%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  pointer-events: none;
-  z-index: -1;
-}
 
 .header {
   position: fixed;

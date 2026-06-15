@@ -117,45 +117,6 @@ vignettePass.uniforms["offset"].value = 0.75;
 vignettePass.uniforms["darkness"].value = 2.0;
 composer.addPass(vignettePass);
 
-const gradientBlurShader = {
-  uniforms: {
-    tDiffuse: { value: null },
-    resolution: { value: new THREE.Vector2(w, h) },
-    intensity: { value: 0.0 },
-  },
-  vertexShader: /* glsl */ `
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `,
-  fragmentShader: /* glsl */ `
-    uniform sampler2D tDiffuse;
-    uniform vec2 resolution;
-    uniform float intensity;
-    varying vec2 vUv;
-
-    void main() {
-      float t = clamp(1.0 - vUv.x / 0.62, 0.0, 1.0) * intensity;
-      float radius = t * 5.0;
-      vec2 texel = 1.0 / resolution;
-      vec4 color = vec4(0.0);
-      float total = 0.0;
-      for (int x = -3; x <= 3; x++) {
-        for (int y = -3; y <= 3; y++) {
-          color += texture2D(tDiffuse, vUv + vec2(float(x), float(y)) * radius * texel);
-          total += 1.0;
-        }
-      }
-      gl_FragColor = color / total;
-    }
-  `,
-};
-
-const gradientBlurPass = new ShaderPass(gradientBlurShader);
-composer.addPass(gradientBlurPass);
-
 const smaaPass = new SMAAPass(w, h);
 composer.addPass(smaaPass);
 // ─── Chargement de la scène ───────────────────────────────────────────────────
@@ -494,11 +455,6 @@ function zoomToObject(obj) {
       infoTitle.innerText = data ? data.title : obj.name;
       infoText.innerText = data ? data.text : "";
       infoPanel.classList.add("visible");
-      gsap.to(gradientBlurPass.uniforms.intensity, {
-        value: 1,
-        duration: 0.6,
-        ease: "power2.inOut",
-      });
       document.body.style.cursor = "default";
     },
   });
@@ -510,11 +466,6 @@ backBtn.addEventListener("click", () => {
   lookAtTarget = null;
   outlinePass.selectedObjects = [];
   infoPanel.classList.remove("visible");
-  gsap.to(gradientBlurPass.uniforms.intensity, {
-    value: 0,
-    duration: 0.6,
-    ease: "power2.inOut",
-  });
   Object.values(dotMap).forEach((d) => d.classList.remove("hidden"));
 
   gsap.to(camera.position, {
