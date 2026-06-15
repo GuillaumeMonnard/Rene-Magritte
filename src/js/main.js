@@ -12,6 +12,7 @@ import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { VignetteShader } from "three/examples/jsm/shaders/VignetteShader.js";
 import { KuwaharaShader } from "./KuwaharaShader.js";
+import { CSS2DRenderer, CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer.js";
 
 import urlScene from "../assets/3d-model/scene.glb";
 import urlHdri from "../assets/hdri/hdri.hdr";
@@ -35,6 +36,14 @@ document.body.appendChild(renderer.domElement);
 renderer.domElement.style.position = "fixed";
 renderer.domElement.style.top = "0";
 renderer.domElement.style.left = "0";
+
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(w, h);
+labelRenderer.domElement.style.position = "fixed";
+labelRenderer.domElement.style.top = "0";
+labelRenderer.domElement.style.left = "0";
+labelRenderer.domElement.style.pointerEvents = "none";
+document.body.appendChild(labelRenderer.domElement);
 
 // ─── Scene ───────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
@@ -145,6 +154,39 @@ gltfLoader.load(urlScene, (gltf) => {
 
   sceneRoot.position.sub(center);
   scene.add(sceneRoot);
+  sceneRoot.updateMatrixWorld(true);
+
+  Object.keys(objectData).forEach((name) => {
+    if (nonInteractable.includes(name)) return;
+    const obj = sceneRoot.getObjectByName(name);
+    if (!obj) return;
+
+    const div = document.createElement("div");
+    div.className = "object-dot initial-hidden";
+    div.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (isZoomed) return;
+      isZoomed = true;
+      hoveredObject = obj;
+      Object.values(dotMap).forEach((d) => d.classList.add("hidden"));
+      zoomToObject(obj);
+    });
+
+    const label = new CSS2DObject(div);
+    const bbox = new THREE.Box3().setFromObject(obj);
+    const worldCenter = bbox.getCenter(new THREE.Vector3());
+    label.position.copy(obj.worldToLocal(worldCenter));
+    obj.add(label);
+
+    dotMap[name] = div;
+  });
+
+  ScrollTrigger.create({
+    trigger: document.body,
+    start: "75% top",
+    onEnter: () => Object.values(dotMap).forEach((d) => d.classList.remove("initial-hidden")),
+    onLeaveBack: () => Object.values(dotMap).forEach((d) => d.classList.add("initial-hidden")),
+  });
 });
 
 // ─── Raycaster ───────────────────────────────────────────────────────────────
@@ -275,6 +317,7 @@ gsap.to(camera.position, {
 });
 
 // ─── Tracking des objets ──────────────────────────────────────────────────────
+const dotMap = {};
 let hoveredObject = null;
 let lookAtTarget = null;
 let isZoomed = false;
@@ -308,30 +351,27 @@ window.addEventListener("mousemove", (e) => {
     }
 
     if (hoveredObject !== object) {
+      if (hoveredObject && dotMap[hoveredObject.name]) dotMap[hoveredObject.name].classList.remove("hovered");
       hoveredObject = object;
       outlinePass.selectedObjects = [object];
+      if (dotMap[object.name]) dotMap[object.name].classList.add("hovered");
       document.body.style.cursor = "pointer";
     }
   } else {
+    if (hoveredObject && dotMap[hoveredObject.name]) dotMap[hoveredObject.name].classList.remove("hovered");
     hoveredObject = null;
     outlinePass.selectedObjects = [];
     document.body.style.cursor = "default";
   }
 });
 
-// ─── Clic sur un objet ────────────────────────────────────────────────────────
-window.addEventListener("click", (e) => {
-  if (e.target.closest("#back-button")) return;
-  if (!hoveredObject || isZoomed) return;
-
-  isZoomed = true;
-
+// ─── Zoom vers un objet ───────────────────────────────────────────────────────
+function zoomToObject(obj) {
   savedCameraPos = camera.position.clone();
   savedCameraRot = camera.rotation.clone();
 
-  const box = new THREE.Box3().setFromObject(hoveredObject);
-  const targetPos = new THREE.Vector3();
-  box.getCenter(targetPos);
+  const box = new THREE.Box3().setFromObject(obj);
+  const targetPos = box.getCenter(new THREE.Vector3());
 
   const size = new THREE.Vector3();
   box.getSize(size);
@@ -339,24 +379,12 @@ window.addEventListener("click", (e) => {
 
   const fov = camera.fov * (Math.PI / 180);
   const distance = (maxDim / 2 / Math.tan(fov / 2)) * 1.6;
-  const fovY = camera.fov * (Math.PI / 180);
-  const fovX = 2 * Math.atan(Math.tan(fovY / 2) * camera.aspect);
-  const screenOffset = 0.4;
-  const worldOffset = screenOffset * distance * Math.tan(fovX / 2);
+  const fovX = 2 * Math.atan(Math.tan(fov / 2) * camera.aspect);
+  const worldOffset = 0.4 * distance * Math.tan(fovX / 2);
 
-  const lookOffset = new THREE.Vector3(
-    targetPos.x - worldOffset,
-    targetPos.y,
-    targetPos.z,
-  );
+  const lookOffset = new THREE.Vector3(targetPos.x - worldOffset, targetPos.y, targetPos.z);
+  const zoomPos = new THREE.Vector3(targetPos.x - worldOffset, targetPos.y, targetPos.z + distance);
 
-  const zoomPos = new THREE.Vector3(
-    targetPos.x - worldOffset,
-    targetPos.y,
-    targetPos.z + distance,
-  );
-
-  // Calcule la rotation cible via une caméra temporaire
   const tempCam = camera.clone();
   tempCam.position.copy(zoomPos);
   tempCam.lookAt(lookOffset);
@@ -365,36 +393,31 @@ window.addEventListener("click", (e) => {
   ScrollTrigger.getAll().forEach((st) => st.disable(false));
 
   gsap.to(camera.position, {
-    x: zoomPos.x,
-    y: zoomPos.y,
-    z: zoomPos.z,
-    duration: 1.2,
-    ease: "power2.inOut",
-    overwrite: true,
+    x: zoomPos.x, y: zoomPos.y, z: zoomPos.z,
+    duration: 1.2, ease: "power2.inOut", overwrite: true,
   });
 
   gsap.to(camera.rotation, {
-    x: targetRot.x,
-    y: targetRot.y,
-    z: targetRot.z,
-    duration: 1.2,
-    ease: "power2.inOut",
-    overwrite: true,
+    x: targetRot.x, y: targetRot.y, z: targetRot.z,
+    duration: 1.2, ease: "power2.inOut", overwrite: true,
     onComplete: () => {
       lookAtTarget = lookOffset.clone();
-
-      const data = objectData[hoveredObject.name];
-      if (data) {
-        infoTitle.innerText = data.title;
-        infoText.innerText = data.text;
-      } else {
-        infoTitle.innerText = hoveredObject.name;
-        infoText.innerText = "";
-      }
+      const data = objectData[obj.name];
+      infoTitle.innerText = data ? data.title : obj.name;
+      infoText.innerText = data ? data.text : "";
       infoPanel.classList.add("visible");
       document.body.style.cursor = "default";
     },
   });
+}
+
+// ─── Clic sur un objet ────────────────────────────────────────────────────────
+window.addEventListener("click", (e) => {
+  if (e.target.closest("#back-button")) return;
+  if (!hoveredObject || isZoomed) return;
+  isZoomed = true;
+  Object.values(dotMap).forEach((d) => d.classList.add("hidden"));
+  zoomToObject(hoveredObject);
 });
 
 // ─── Bouton retour ────────────────────────────────────────────────────────────
@@ -403,6 +426,7 @@ backBtn.addEventListener("click", () => {
   lookAtTarget = null;
   outlinePass.selectedObjects = [];
   infoPanel.classList.remove("visible");
+  Object.values(dotMap).forEach((d) => d.classList.remove("hidden"));
 
   const currentPos = camera.position.clone();
   const currentRotX = camera.rotation.x;
@@ -443,6 +467,7 @@ window.addEventListener("resize", () => {
 
   renderer.setSize(newW, newH);
   composer.setSize(newW, newH);
+  labelRenderer.setSize(newW, newH);
 });
 
 // ─── About ───────────────────────────────────────────────────────────────────
@@ -464,6 +489,7 @@ function animate() {
 
   renderer.render(scene, camera);
   composer.render();
+  labelRenderer.render(scene, camera);
 }
 
 animate();

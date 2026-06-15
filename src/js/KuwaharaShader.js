@@ -17,7 +17,7 @@ const KuwaharaShader = {
 
   fragmentShader: /* glsl */ `
     #define RADIUS 6
-    #define ANISOTROPY 4.0
+    #define ANISOTROPY 3.0
 
     uniform sampler2D tDiffuse;
     uniform vec2 resolution;
