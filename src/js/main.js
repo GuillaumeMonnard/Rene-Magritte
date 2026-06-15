@@ -161,8 +161,11 @@ gltfLoader.load(urlScene, (gltf) => {
     const obj = sceneRoot.getObjectByName(name);
     if (!obj) return;
 
+    const wrapper = document.createElement("div");
+
     const div = document.createElement("div");
     div.className = "object-dot initial-hidden";
+    wrapper.appendChild(div);
 
     div.addEventListener("mouseenter", () => {
       if (isZoomed) return;
@@ -185,7 +188,7 @@ gltfLoader.load(urlScene, (gltf) => {
       zoomToObject(obj);
     });
 
-    const label = new CSS2DObject(div);
+    const label = new CSS2DObject(wrapper);
     const bbox = new THREE.Box3().setFromObject(obj);
     const worldCenter = bbox.getCenter(new THREE.Vector3());
     // Côté gauche ou droit selon la position de l'objet dans la scène
