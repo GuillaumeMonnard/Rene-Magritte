@@ -12,7 +12,10 @@ import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { VignetteShader } from "three/examples/jsm/shaders/VignetteShader.js";
 import { KuwaharaShader } from "./KuwaharaShader.js";
-import { CSS2DRenderer, CSS2DObject } from "three/examples/jsm/renderers/CSS2DRenderer.js";
+import {
+  CSS2DRenderer,
+  CSS2DObject,
+} from "three/examples/jsm/renderers/CSS2DRenderer.js";
 
 import urlScene from "../assets/3d-model/scene.glb";
 import urlHdri from "../assets/hdri/hdri.hdr";
@@ -114,6 +117,45 @@ vignettePass.uniforms["offset"].value = 0.75;
 vignettePass.uniforms["darkness"].value = 2.0;
 composer.addPass(vignettePass);
 
+const gradientBlurShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    resolution: { value: new THREE.Vector2(w, h) },
+    intensity: { value: 0.0 },
+  },
+  vertexShader: /* glsl */ `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: /* glsl */ `
+    uniform sampler2D tDiffuse;
+    uniform vec2 resolution;
+    uniform float intensity;
+    varying vec2 vUv;
+
+    void main() {
+      float t = clamp(1.0 - vUv.x / 0.62, 0.0, 1.0) * intensity;
+      float radius = t * 10.0;
+      vec2 texel = 1.0 / resolution;
+      vec4 color = vec4(0.0);
+      float total = 0.0;
+      for (int x = -3; x <= 3; x++) {
+        for (int y = -3; y <= 3; y++) {
+          color += texture2D(tDiffuse, vUv + vec2(float(x), float(y)) * radius * texel);
+          total += 1.0;
+        }
+      }
+      gl_FragColor = color / total;
+    }
+  `,
+};
+
+const gradientBlurPass = new ShaderPass(gradientBlurShader);
+composer.addPass(gradientBlurPass);
+
 const smaaPass = new SMAAPass(w, h);
 composer.addPass(smaaPass);
 // ─── Chargement de la scène ───────────────────────────────────────────────────
@@ -177,12 +219,24 @@ gltfLoader.load(urlScene, (gltf) => {
     div.addEventListener("mouseenter", () => {
       if (isZoomed) return;
       div.classList.add("hovered");
-      gsap.to(obj.scale, { x: hoverScale, y: hoverScale, z: hoverScale, duration: 0.3, ease: "power2.out" });
+      gsap.to(obj.scale, {
+        x: hoverScale,
+        y: hoverScale,
+        z: hoverScale,
+        duration: 0.3,
+        ease: "power2.out",
+      });
     });
 
     div.addEventListener("mouseleave", () => {
       div.classList.remove("hovered");
-      gsap.to(obj.scale, { x: 1, y: 1, z: 1, duration: 0.3, ease: "power2.out" });
+      gsap.to(obj.scale, {
+        x: 1,
+        y: 1,
+        z: 1,
+        duration: 0.3,
+        ease: "power2.out",
+      });
     });
 
     div.addEventListener("click", (e) => {
@@ -200,7 +254,11 @@ gltfLoader.load(urlScene, (gltf) => {
     const label = new CSS2DObject(wrapper);
     const xSign = worldCenter.x >= 0 ? 1 : -1;
     const xEdge = xSign > 0 ? bbox.max.x : bbox.min.x;
-    const worldSidePos = new THREE.Vector3(xEdge + xSign * 0.08, worldCenter.y, worldCenter.z);
+    const worldSidePos = new THREE.Vector3(
+      xEdge + xSign * 0.08,
+      worldCenter.y,
+      worldCenter.z,
+    );
     const anchor = new THREE.Object3D();
     anchor.position.copy(worldSidePos);
     anchor.add(label);
@@ -212,8 +270,12 @@ gltfLoader.load(urlScene, (gltf) => {
   ScrollTrigger.create({
     trigger: document.body,
     start: "75% top",
-    onEnter: () => Object.values(dotMap).forEach((d) => d.classList.remove("initial-hidden")),
-    onLeaveBack: () => Object.values(dotMap).forEach((d) => d.classList.add("initial-hidden")),
+    onEnter: () =>
+      Object.values(dotMap).forEach((d) =>
+        d.classList.remove("initial-hidden"),
+      ),
+    onLeaveBack: () =>
+      Object.values(dotMap).forEach((d) => d.classList.add("initial-hidden")),
   });
 });
 
@@ -377,7 +439,6 @@ let isZoomed = false;
 let savedCameraPos = null;
 let savedCameraRot = null;
 
-
 // ─── Zoom vers un objet ───────────────────────────────────────────────────────
 function zoomToObject(obj) {
   savedCameraPos = camera.position.clone();
@@ -395,8 +456,16 @@ function zoomToObject(obj) {
   const fovX = 2 * Math.atan(Math.tan(fov / 2) * camera.aspect);
   const worldOffset = 0.4 * distance * Math.tan(fovX / 2);
 
-  const lookOffset = new THREE.Vector3(targetPos.x - worldOffset, targetPos.y, targetPos.z);
-  const zoomPos = new THREE.Vector3(targetPos.x - worldOffset, targetPos.y, targetPos.z + distance);
+  const lookOffset = new THREE.Vector3(
+    targetPos.x - worldOffset,
+    targetPos.y,
+    targetPos.z,
+  );
+  const zoomPos = new THREE.Vector3(
+    targetPos.x - worldOffset,
+    targetPos.y,
+    targetPos.z + distance,
+  );
 
   const tempCam = camera.clone();
   tempCam.position.copy(zoomPos);
@@ -406,19 +475,30 @@ function zoomToObject(obj) {
   ScrollTrigger.getAll().forEach((st) => st.disable(false));
 
   gsap.to(camera.position, {
-    x: zoomPos.x, y: zoomPos.y, z: zoomPos.z,
-    duration: 1.2, ease: "power2.inOut",
+    x: zoomPos.x,
+    y: zoomPos.y,
+    z: zoomPos.z,
+    duration: 1.2,
+    ease: "power2.inOut",
   });
 
   gsap.to(camera.rotation, {
-    x: targetRot.x, y: targetRot.y, z: targetRot.z,
-    duration: 1.2, ease: "power2.inOut",
+    x: targetRot.x,
+    y: targetRot.y,
+    z: targetRot.z,
+    duration: 1.2,
+    ease: "power2.inOut",
     onComplete: () => {
       lookAtTarget = lookOffset.clone();
       const data = objectData[obj.name];
       infoTitle.innerText = data ? data.title : obj.name;
       infoText.innerText = data ? data.text : "";
       infoPanel.classList.add("visible");
+      gsap.to(gradientBlurPass.uniforms.intensity, {
+        value: 1,
+        duration: 0.6,
+        ease: "power2.inOut",
+      });
       document.body.style.cursor = "default";
     },
   });
@@ -430,6 +510,11 @@ backBtn.addEventListener("click", () => {
   lookAtTarget = null;
   outlinePass.selectedObjects = [];
   infoPanel.classList.remove("visible");
+  gsap.to(gradientBlurPass.uniforms.intensity, {
+    value: 0,
+    duration: 0.6,
+    ease: "power2.inOut",
+  });
   Object.values(dotMap).forEach((d) => d.classList.remove("hidden"));
 
   gsap.to(camera.position, {
