@@ -63,8 +63,8 @@ body {
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
   background: linear-gradient(
     90deg,
-    #266988 0%,
-    rgba(38, 105, 136, 0) 55%
+    rgba(5, 18, 30, 0.85) 0%,
+    rgba(38, 105, 136, 0) 100%
   );
   position: fixed;
   inset: 0;
@@ -76,6 +76,59 @@ body {
 
 #info-text {
   white-space: pre-line;
+}
+
+@keyframes float-title {
+  0%, 100% { translate: 0 0;     rotate: 0deg; }
+  50%       { translate: 0 -7px;  rotate: 0.4deg; }
+}
+
+@keyframes float-title-strong {
+  0%, 100% { translate: 0 0;     rotate: 0deg; }
+  50%       { translate: 0 -28px; rotate: 1.6deg; }
+}
+
+@keyframes float-text {
+  0%, 100% { translate: 0 0;    rotate: 0deg; }
+  50%       { translate: 0 -5px; rotate: -0.3deg; }
+}
+
+/* info-panel */
+#info-title {
+  animation: float-title 4.5s ease-in-out infinite;
+  animation-delay: -0.8s;
+}
+
+#info-text {
+  animation: float-text 6.2s ease-in-out infinite;
+  animation-delay: -3.5s;
+}
+
+/* intro */
+#intro-title {
+  animation: float-title-strong 5.5s ease-in-out infinite;
+  animation-delay: -1.5s;
+}
+
+#intro-scroll {
+  animation: float-text 7s ease-in-out infinite;
+  animation-delay: -3.2s;
+}
+
+/* about-panel */
+#about-panel h1 {
+  animation: float-title-strong 5s ease-in-out infinite;
+  animation-delay: -0.5s;
+}
+
+#about-p {
+  animation: float-text 6.5s ease-in-out infinite;
+  animation-delay: -2.8s;
+}
+
+#auteur-rices {
+  animation: float-title 7.2s ease-in-out infinite;
+  animation-delay: -4.2s;
 }
 
 #info-panel.visible {
