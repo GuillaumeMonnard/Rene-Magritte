@@ -7,6 +7,8 @@ import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass.js";
 import { gsap } from "gsap";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SSAOPass } from "three/examples/jsm/postprocessing/SSAOPass.js";
+import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 
 import urlScene from "../assets/3d-model/scene.glb";
 import urlHdri from "../assets/hdri/hdri.hdr";
@@ -23,6 +25,9 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.5;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+// renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.BasicShadowMap;
 
 document.body.appendChild(renderer.domElement);
 renderer.domElement.style.position = "fixed";
@@ -32,31 +37,36 @@ renderer.domElement.style.left = "0";
 // ─── Scene ───────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x6aabcc);
+scene.fog = new THREE.FogExp2(0x6aabcc, 0.012);
 
 // ─── Lights ──────────────────────────────────────────────────────────────────
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+const ambientLight = new THREE.AmbientLight(0xfff5e0, 0.4);
 scene.add(ambientLight);
 
-const spotLight = new THREE.SpotLight(0xffffff, 110);
-spotLight.position.set(0, 0, -30);
-spotLight.target.position.set(-1, -2, -38);
-spotLight.angle = Math.PI / 6;
-spotLight.penumbra = 1;
-spotLight.decay = 2;
-spotLight.distance = 50;
-scene.add(spotLight);
-scene.add(spotLight.target);
+const shadowLight = new THREE.DirectionalLight(0xfff5e0, 1.5);
+shadowLight.position.set(3, 12, 5);
+shadowLight.castShadow = true;
+shadowLight.shadow.mapSize.width = 2048;
+shadowLight.shadow.mapSize.height = 2048;
+shadowLight.shadow.camera.near = 0.1;
+shadowLight.shadow.camera.far = 60;
+shadowLight.shadow.camera.left = -20;
+shadowLight.shadow.camera.right = 20;
+shadowLight.shadow.camera.top = 20;
+shadowLight.shadow.camera.bottom = -20;
+scene.add(shadowLight);
+scene.add(shadowLight.target);
 
-const dirLight = new THREE.DirectionalLight(0xffffff, 2);
-dirLight.position.set(0, 0, -40);
-scene.add(dirLight);
+const fillLight = new THREE.DirectionalLight(0xaac8ff, 0.4);
+fillLight.position.set(-5, 3, -5);
+scene.add(fillLight);
 
 // ─── HDRI ────────────────────────────────────────────────────────────────────
 const rgbeLoader = new RGBELoader();
 rgbeLoader.load(urlHdri, (texture) => {
   texture.mapping = THREE.EquirectangularReflectionMapping;
   scene.environment = texture;
-  scene.environmentIntensity = 0.2;
+  scene.environmentIntensity = 0.7;
 });
 
 // ─── Camera ──────────────────────────────────────────────────────────────────
@@ -65,10 +75,13 @@ camera.position.set(0, 0.7, 0);
 scene.add(camera);
 
 // ─── Post-processing ─────────────────────────────────────────────────────────
-const composer = new EffectComposer(renderer);
+const renderTarget = new THREE.WebGLRenderTarget(w, h, {
+  type: THREE.HalfFloatType,
+});
+const composer = new EffectComposer(renderer, renderTarget);
 composer.addPass(new RenderPass(scene, camera));
 
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.3, 0.5, 0.7);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.1, 0.5, 0.3);
 composer.addPass(bloomPass);
 
 const outlinePass = new OutlinePass(new THREE.Vector2(w, h), scene, camera);
@@ -78,33 +91,37 @@ outlinePass.edgeThickness = 1;
 outlinePass.visibleEdgeColor.set(0xffffff);
 outlinePass.hiddenEdgeColor.set(0x000000);
 composer.addPass(outlinePass);
-
 // ─── Chargement de la scène ───────────────────────────────────────────────────
 const gltfLoader = new GLTFLoader();
 let sceneRoot = null;
 
 gltfLoader.load(urlScene, (gltf) => {
   sceneRoot = gltf.scene;
+
   sceneRoot.traverse((child) => {
     if (!child.isMesh) return;
+    child.castShadow = true;
+    child.receiveShadow = true;
     if (child.material?.emissive?.getHex() !== 0x000000) {
       child.material.emissiveIntensity = 2.0;
     }
   });
 
-  const box = new THREE.Box3().setFromObject(sceneRoot);
-  const center = box.getCenter(new THREE.Vector3());
-  sceneRoot.position.sub(center);
-
-  scene.add(sceneRoot);
-
-  sceneRoot.traverse((child) => {
+  sceneRoot.getObjectByName("NUAGE")?.traverse((child) => {
     if (child.isMesh) {
-      const worldPos = new THREE.Vector3();
-      child.getWorldPosition(worldPos);
-      console.log(child.name, worldPos);
+      child.material.color.set(0x6aabcc); // même bleu que le fond
+      child.material.roughness = 1;
+      child.material.metalness = 0;
     }
   });
+
+  const box = new THREE.Box3().setFromObject(sceneRoot);
+  const center = box.getCenter(new THREE.Vector3());
+  console.log("Centre:", center);
+  console.log("Box min:", box.min, "max:", box.max);
+
+  sceneRoot.position.sub(center);
+  scene.add(sceneRoot);
 
   console.log("Scène chargée");
 });
@@ -420,6 +437,8 @@ aboutClose.addEventListener("click", () => {
 function animate() {
   requestAnimationFrame(animate);
   if (lookAtTarget) camera.lookAt(lookAtTarget);
+
+  renderer.render(scene, camera);
   composer.render();
 }
 
