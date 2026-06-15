@@ -163,19 +163,39 @@ gltfLoader.load(urlScene, (gltf) => {
 
     const div = document.createElement("div");
     div.className = "object-dot initial-hidden";
+
+    div.addEventListener("mouseenter", () => {
+      if (isZoomed) return;
+      div.classList.add("hovered");
+      outlinePass.selectedObjects = [obj];
+    });
+
+    div.addEventListener("mouseleave", () => {
+      div.classList.remove("hovered");
+      outlinePass.selectedObjects = [];
+    });
+
     div.addEventListener("click", (e) => {
       e.stopPropagation();
       if (isZoomed) return;
       isZoomed = true;
       hoveredObject = obj;
-      Object.values(dotMap).forEach((d) => d.classList.add("hidden"));
+      Object.values(dotMap).forEach((d) => {
+        d.classList.remove("hovered");
+        d.classList.add("hidden");
+      });
+      outlinePass.selectedObjects = [];
       zoomToObject(obj);
     });
 
     const label = new CSS2DObject(div);
     const bbox = new THREE.Box3().setFromObject(obj);
     const worldCenter = bbox.getCenter(new THREE.Vector3());
-    label.position.copy(obj.worldToLocal(worldCenter));
+    // Côté gauche ou droit selon la position de l'objet dans la scène
+    const xSign = worldCenter.x >= 0 ? 1 : -1;
+    const xEdge = xSign > 0 ? bbox.max.x : bbox.min.x;
+    const worldSidePos = new THREE.Vector3(xEdge + xSign * 0.25, worldCenter.y, worldCenter.z);
+    label.position.copy(obj.worldToLocal(worldSidePos));
     obj.add(label);
 
     dotMap[name] = div;
@@ -188,10 +208,6 @@ gltfLoader.load(urlScene, (gltf) => {
     onLeaveBack: () => Object.values(dotMap).forEach((d) => d.classList.add("initial-hidden")),
   });
 });
-
-// ─── Raycaster ───────────────────────────────────────────────────────────────
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
 
 // ─── Objets non interactifs ───────────────────────────────────────────────────
 const nonInteractable = [
@@ -324,46 +340,6 @@ let isZoomed = false;
 let savedCameraPos = null;
 let savedCameraRot = null;
 
-function getTopObject(hit) {
-  let object = hit;
-  while (object.parent && object.parent !== sceneRoot) {
-    object = object.parent;
-  }
-  return object;
-}
-
-window.addEventListener("mousemove", (e) => {
-  if (!sceneRoot || isZoomed) return;
-  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(sceneRoot.children, true);
-
-  if (intersects.length > 0) {
-    const object = getTopObject(intersects[0].object);
-
-    if (nonInteractable.includes(object.name)) {
-      hoveredObject = null;
-      outlinePass.selectedObjects = [];
-      document.body.style.cursor = "default";
-      return;
-    }
-
-    if (hoveredObject !== object) {
-      if (hoveredObject && dotMap[hoveredObject.name]) dotMap[hoveredObject.name].classList.remove("hovered");
-      hoveredObject = object;
-      outlinePass.selectedObjects = [object];
-      if (dotMap[object.name]) dotMap[object.name].classList.add("hovered");
-      document.body.style.cursor = "pointer";
-    }
-  } else {
-    if (hoveredObject && dotMap[hoveredObject.name]) dotMap[hoveredObject.name].classList.remove("hovered");
-    hoveredObject = null;
-    outlinePass.selectedObjects = [];
-    document.body.style.cursor = "default";
-  }
-});
 
 // ─── Zoom vers un objet ───────────────────────────────────────────────────────
 function zoomToObject(obj) {
@@ -410,15 +386,6 @@ function zoomToObject(obj) {
     },
   });
 }
-
-// ─── Clic sur un objet ────────────────────────────────────────────────────────
-window.addEventListener("click", (e) => {
-  if (e.target.closest("#back-button")) return;
-  if (!hoveredObject || isZoomed) return;
-  isZoomed = true;
-  Object.values(dotMap).forEach((d) => d.classList.add("hidden"));
-  zoomToObject(hoveredObject);
-});
 
 // ─── Bouton retour ────────────────────────────────────────────────────────────
 backBtn.addEventListener("click", () => {
