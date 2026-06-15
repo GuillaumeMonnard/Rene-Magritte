@@ -11,6 +11,7 @@ import { SSAOPass } from "three/examples/jsm/postprocessing/SSAOPass.js";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { VignetteShader } from "three/examples/jsm/shaders/VignetteShader.js";
+import { KuwaharaShader } from "./KuwaharaShader.js";
 
 import urlScene from "../assets/3d-model/scene.glb";
 import urlHdri from "../assets/hdri/hdri.hdr";
@@ -94,6 +95,10 @@ outlinePass.edgeThickness = 1;
 outlinePass.visibleEdgeColor.set(0xffffff);
 outlinePass.hiddenEdgeColor.set(0x000000);
 composer.addPass(outlinePass);
+
+const kuwaharaPass = new ShaderPass(KuwaharaShader);
+kuwaharaPass.uniforms["resolution"].value = [w, h];
+composer.addPass(kuwaharaPass);
 
 const vignettePass = new ShaderPass(VignetteShader);
 vignettePass.uniforms["offset"].value = 0.75;
