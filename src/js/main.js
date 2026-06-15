@@ -37,8 +37,8 @@ renderer.domElement.style.left = "0";
 
 // ─── Scene ───────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xa8d4ec);
-scene.fog = new THREE.FogExp2(0xa8d4ec, 0.022);
+scene.background = new THREE.Color(0xa0c8e0);
+scene.fog = new THREE.FogExp2(0xa0c8e0, 0.022);
 
 // ─── Lights ──────────────────────────────────────────────────────────────────
 const ambientLight = new THREE.AmbientLight(0xfff5e0, 0.6);
@@ -84,7 +84,7 @@ const renderTarget = new THREE.WebGLRenderTarget(w, h, {
 });
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.15, 1.2, 0.95);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.07, 1.2, 0.95);
 composer.addPass(bloomPass);
 
 const outlinePass = new OutlinePass(new THREE.Vector2(w, h), scene, camera);
