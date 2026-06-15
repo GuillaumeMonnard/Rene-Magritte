@@ -291,7 +291,6 @@ window.addEventListener("click", (e) => {
 
   const fov = camera.fov * (Math.PI / 180);
   const distance = (maxDim / 2 / Math.tan(fov / 2)) * 1.6;
-
   const fovY = camera.fov * (Math.PI / 180);
   const fovX = 2 * Math.atan(Math.tan(fovY / 2) * camera.aspect);
   const screenOffset = 0.4;
