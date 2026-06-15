@@ -113,7 +113,10 @@ gltfLoader.load(urlScene, (gltf) => {
     if (!child.isMesh) return;
     child.castShadow = true;
     child.receiveShadow = true;
-    if (child.material?.emissive?.getHex() !== 0x000000) {
+    if (child.material?.emissiveMap) {
+      child.material.emissive.set(0xffffff);
+      child.material.emissiveIntensity = 3.0;
+    } else if (child.material?.emissive?.getHex() !== 0x000000) {
       child.material.emissiveIntensity = 2.0;
     }
   });
@@ -126,15 +129,17 @@ gltfLoader.load(urlScene, (gltf) => {
     }
   });
 
+  sceneRoot.getObjectByName("light")?.traverse((child) => {
+    if (child.isMesh && child.material?.name === "light") {
+      child.material.emissiveIntensity = 3.0;
+    }
+  });
+
   const box = new THREE.Box3().setFromObject(sceneRoot);
   const center = box.getCenter(new THREE.Vector3());
-  console.log("Centre:", center);
-  console.log("Box min:", box.min, "max:", box.max);
 
   sceneRoot.position.sub(center);
   scene.add(sceneRoot);
-
-  console.log("Scène chargée");
 });
 
 // ─── Raycaster ───────────────────────────────────────────────────────────────
