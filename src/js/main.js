@@ -167,12 +167,10 @@ gltfLoader.load(urlScene, (gltf) => {
     div.addEventListener("mouseenter", () => {
       if (isZoomed) return;
       div.classList.add("hovered");
-      outlinePass.selectedObjects = [obj];
     });
 
     div.addEventListener("mouseleave", () => {
       div.classList.remove("hovered");
-      outlinePass.selectedObjects = [];
     });
 
     div.addEventListener("click", (e) => {
@@ -184,7 +182,6 @@ gltfLoader.load(urlScene, (gltf) => {
         d.classList.remove("hovered");
         d.classList.add("hidden");
       });
-      outlinePass.selectedObjects = [];
       zoomToObject(obj);
     });
 
