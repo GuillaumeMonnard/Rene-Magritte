@@ -114,7 +114,14 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 // ─── Objets non interactifs ───────────────────────────────────────────────────
-const nonInteractable = ["NUAGE", "Plane014", "couloir", "TABLEAU", "light"];
+const nonInteractable = [
+  "NUAGE",
+  "Plane014",
+  "couloir",
+  "TABLEAU",
+  "light",
+  "PORTE-MANTEAUX",
+];
 
 // ─── Données des objets ───────────────────────────────────────────────────────
 const objectData = {
@@ -308,18 +315,13 @@ window.addEventListener("click", (e) => {
     targetPos.z + distance,
   );
 
-  // ── Sauvegarde et restore les valeurs avant kill ──
-  const currentPos = camera.position.clone();
-  const currentRotX = camera.rotation.x;
-  const currentRotY = camera.rotation.y;
-  const currentRotZ = camera.rotation.z;
+  // Calcule la rotation cible via une caméra temporaire
+  const tempCam = camera.clone();
+  tempCam.position.copy(zoomPos);
+  tempCam.lookAt(lookOffset);
+  const targetRot = tempCam.rotation.clone();
 
   ScrollTrigger.getAll().forEach((st) => st.disable(false));
-  gsap.killTweensOf(camera.position);
-  gsap.killTweensOf(camera.rotation);
-
-  camera.position.copy(currentPos);
-  camera.rotation.set(currentRotX, currentRotY, currentRotZ);
 
   gsap.to(camera.position, {
     x: zoomPos.x,
@@ -327,7 +329,16 @@ window.addEventListener("click", (e) => {
     z: zoomPos.z,
     duration: 1.2,
     ease: "power2.inOut",
-    onUpdate: () => camera.lookAt(lookOffset),
+    overwrite: true,
+  });
+
+  gsap.to(camera.rotation, {
+    x: targetRot.x,
+    y: targetRot.y,
+    z: targetRot.z,
+    duration: 1.2,
+    ease: "power2.inOut",
+    overwrite: true,
     onComplete: () => {
       lookAtTarget = lookOffset.clone();
 
