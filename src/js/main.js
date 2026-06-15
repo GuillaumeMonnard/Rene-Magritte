@@ -9,6 +9,8 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SSAOPass } from "three/examples/jsm/postprocessing/SSAOPass.js";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { VignetteShader } from "three/examples/jsm/shaders/VignetteShader.js";
 
 import urlScene from "../assets/3d-model/scene.glb";
 import urlHdri from "../assets/hdri/hdri.hdr";
@@ -35,8 +37,8 @@ renderer.domElement.style.left = "0";
 
 // ─── Scene ───────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x6aabcc);
-scene.fog = new THREE.FogExp2(0x6aabcc, 0.018);
+scene.background = new THREE.Color(0xa8d4ec);
+scene.fog = new THREE.FogExp2(0xa8d4ec, 0.022);
 
 // ─── Lights ──────────────────────────────────────────────────────────────────
 const ambientLight = new THREE.AmbientLight(0xfff5e0, 0.6);
@@ -48,6 +50,7 @@ shadowLight.castShadow = true;
 shadowLight.shadow.mapSize.width = 4096;
 shadowLight.shadow.mapSize.height = 4096;
 shadowLight.shadow.bias = -0.001;
+shadowLight.shadow.radius = 6;
 shadowLight.shadow.camera.near = 0.1;
 shadowLight.shadow.camera.far = 100;
 shadowLight.shadow.camera.left = -30;
@@ -81,7 +84,7 @@ const renderTarget = new THREE.WebGLRenderTarget(w, h, {
 });
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.4, 0.8, 0.7);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.15, 1.2, 0.95);
 composer.addPass(bloomPass);
 
 const outlinePass = new OutlinePass(new THREE.Vector2(w, h), scene, camera);
@@ -91,6 +94,14 @@ outlinePass.edgeThickness = 1;
 outlinePass.visibleEdgeColor.set(0xffffff);
 outlinePass.hiddenEdgeColor.set(0x000000);
 composer.addPass(outlinePass);
+
+const vignettePass = new ShaderPass(VignetteShader);
+vignettePass.uniforms["offset"].value = 0.75;
+vignettePass.uniforms["darkness"].value = 2.0;
+composer.addPass(vignettePass);
+
+const smaaPass = new SMAAPass(w, h);
+composer.addPass(smaaPass);
 // ─── Chargement de la scène ───────────────────────────────────────────────────
 const gltfLoader = new GLTFLoader();
 let sceneRoot = null;
@@ -109,7 +120,7 @@ gltfLoader.load(urlScene, (gltf) => {
 
   sceneRoot.getObjectByName("NUAGE")?.traverse((child) => {
     if (child.isMesh) {
-      child.material.color.set(0x6aabcc); // même bleu que le fond
+      child.material.color.set(0xfff0e0);
       child.material.roughness = 1;
       child.material.metalness = 0;
     }
