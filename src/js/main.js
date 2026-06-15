@@ -340,6 +340,35 @@ gsap.to(camera.position, {
   },
 });
 
+// ─── Intro ───────────────────────────────────────────────────────────────────
+const introScrollTrigger = {
+  trigger: document.body,
+  start: "top top",
+  end: "15% top",
+  scrub: 1.2,
+};
+
+gsap.to(".intro-line", {
+  opacity: 0,
+  y: 80,
+  ease: "power2.in",
+  stagger: { each: 0.12, from: "end" },
+  scrollTrigger: introScrollTrigger,
+});
+
+gsap.to("#intro-scroll", {
+  opacity: 0,
+  y: 30,
+  ease: "power2.in",
+  scrollTrigger: introScrollTrigger,
+});
+
+gsap.to("#intro", {
+  backgroundColor: "rgba(38, 105, 136, 0)",
+  ease: "power2.in",
+  scrollTrigger: introScrollTrigger,
+});
+
 // ─── Tracking des objets ──────────────────────────────────────────────────────
 const dotMap = {};
 let hoveredObject = null;
@@ -378,12 +407,12 @@ function zoomToObject(obj) {
 
   gsap.to(camera.position, {
     x: zoomPos.x, y: zoomPos.y, z: zoomPos.z,
-    duration: 1.2, ease: "power2.inOut", overwrite: true,
+    duration: 1.2, ease: "power2.inOut",
   });
 
   gsap.to(camera.rotation, {
     x: targetRot.x, y: targetRot.y, z: targetRot.z,
-    duration: 1.2, ease: "power2.inOut", overwrite: true,
+    duration: 1.2, ease: "power2.inOut",
     onComplete: () => {
       lookAtTarget = lookOffset.clone();
       const data = objectData[obj.name];
@@ -403,24 +432,13 @@ backBtn.addEventListener("click", () => {
   infoPanel.classList.remove("visible");
   Object.values(dotMap).forEach((d) => d.classList.remove("hidden"));
 
-  const currentPos = camera.position.clone();
-  const currentRotX = camera.rotation.x;
-  const currentRotY = camera.rotation.y;
-  const currentRotZ = camera.rotation.z;
-
-  ScrollTrigger.getAll().forEach((st) => st.enable());
-  gsap.killTweensOf(camera.position);
-  gsap.killTweensOf(camera.rotation);
-
-  camera.position.copy(currentPos);
-  camera.rotation.set(currentRotX, currentRotY, currentRotZ);
-
   gsap.to(camera.position, {
     x: savedCameraPos.x,
     y: savedCameraPos.y,
     z: savedCameraPos.z,
     duration: 1.2,
     ease: "power2.inOut",
+    onComplete: () => ScrollTrigger.getAll().forEach((st) => st.enable()),
   });
 
   gsap.to(camera.rotation, {
